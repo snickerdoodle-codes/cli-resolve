@@ -3,11 +3,6 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-
-def dummify(pd_series):
-    pass
-
-
 DAYS = 365
 ROWS = 20
 COLS = 20
@@ -49,7 +44,7 @@ df['Resolutions Met'] = sum(
 )
 # pd.set_option('display.max_rows', None)
 # pd.set_option('display.max_columns', None)
-print(df)
+# print(df)
 
 # df_melted = pd.melt(df, id_vars='Row Num', value_vars=['Exercise', 'Floss', 'Writing', 'Coding', 'Skincare'],
 #                     var_name='Resolution', value_name='Value')
@@ -59,5 +54,11 @@ print(df)
 df_map = df.pivot("Row Num", "Col Num", "Resolutions Met")
 
 # glue = sns.load_dataset("glue").pivot("Model", "Task", "Score")
-sns.heatmap(df_map, vmin=0, vmax=5, cmap="viridis")
+nyr_map = sns.heatmap(df_map, vmin=0, vmax=5, cmap="rainbow", xticklabels=False, yticklabels=False)
+
+# outline day I started Adderall
+rect = plt.Rectangle([3, 5], 1, 1, color="gold",
+                     linewidth=2.5, fill=False)
+nyr_map.add_patch(rect)
+nyr_map.set(xlabel=None, ylabel=None)
 plt.show()
