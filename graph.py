@@ -54,7 +54,7 @@ df['Resolutions Met'] = sum(
 df_map = df.pivot("Row Num", "Col Num", "Resolutions Met")
 
 # glue = sns.load_dataset("glue").pivot("Model", "Task", "Score")
-nyr_map = sns.heatmap(df_map, vmin=0, vmax=5, cmap="rainbow", xticklabels=False, yticklabels=False)
+nyr_map = sns.heatmap(df_map, vmin=0, vmax=5, cmap="inferno", xticklabels=False, yticklabels=False)
 
 # outline day I started Adderall
 rect = plt.Rectangle([3, 5], 1, 1, color="gold",
