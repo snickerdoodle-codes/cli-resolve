@@ -27,6 +27,10 @@ for day in range(1, DAYS + 1):
 
 # Data cleaning
 df = pd.read_csv('data/nyr_2022_sample.csv')
+df[['Month', 'Day', 'Year']] = df['Date'].str.split('/', expand=True)
+# print(df['Month'])
+df['Month'] = df['Month'].astype(int)
+df['Day'] = df['Day'].astype(int)
 df.fillna(0, inplace=True)
 df = df.replace('0', 0)
 df = df.replace('0.0', 0)
@@ -51,14 +55,15 @@ df['Resolutions Met'] = sum(
 #
 # print(df_melted)
 # df_map = df_melted.pivot("Row Num", "Resolution", "Value")
-df_map = df.pivot("Row Num", "Col Num", "Resolutions Met")
+df_map = df.pivot("Month", "Day", "Resolutions Met")
 
 # glue = sns.load_dataset("glue").pivot("Model", "Task", "Score")
-nyr_map = sns.heatmap(df_map, vmin=0, vmax=5, cmap="inferno", xticklabels=False, yticklabels=False)
+# nyr_map = sns.heatmap(df_map, vmin=0, vmax=5, cmap="inferno", xticklabels=False, yticklabels=False)
+nyr_map = sns.heatmap(df_map, vmin=0, vmax=5, cmap="inferno", square=True, cbar_kws={'orientation': 'horizontal'})
 
 # outline day I started Adderall
-rect = plt.Rectangle([3, 5], 1, 1, color="gold",
+rect = plt.Rectangle([13, 3], 1, 1, color="gold",
                      linewidth=2.5, fill=False)
 nyr_map.add_patch(rect)
-nyr_map.set(xlabel=None, ylabel=None)
+# nyr_map.set(xlabel=None, ylabel=None)
 plt.show()
