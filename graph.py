@@ -2,7 +2,7 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-df = pd.read_csv('data/nyr_2022_sample.csv')
+df = pd.read_csv('data/legacy/nyr20.csv')
 
 # Split date column
 df[['Month', 'Day', 'Year']] = df['Date'].str.split('/', expand=True)
