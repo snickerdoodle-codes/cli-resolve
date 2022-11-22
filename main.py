@@ -1,6 +1,8 @@
+import os
 import sys
 from datetime import date
 import json
+from time import sleep
 import csv
 from utils import *
 
@@ -64,8 +66,19 @@ def add_resolution():
         json.dump(all_res_dict, f)
 
 
+def edit_resolution():
+    pass
+
+
 def deactivate_resolution():
     pass
+
+
+def print_detail_codes(res_dict):
+    codes = ""
+    for key, val in res_dict["res_detail_codes"].items():
+        codes += f"{key} - {val}\n"
+    return codes
 
 
 def log_resolutions():
@@ -73,19 +86,32 @@ def log_resolutions():
     today = date.today().strftime("%m/%d/%Y")
     for res, val in active_res.items():
         if val['is_binary']:
-            response = input(f"Did you `{val['res_descript']}` today? (Y/N): ").upper()
+            response = input(f"- Did you `{val['res_descript']}` today? (Y/N): ").upper()
             if response == "Y":
                 val['data'][today] = True
             elif response == "N":
                 val['data'][today] = False
             else:
                 print(f"Invalid input: {response}")
+        else:
+            print(f"- Did you `{val['res_descript']}` today?")
+            print(f"{print_detail_codes(val)}")
+            response = input(f"Enter the code or codes for your activities, or 'N' for no: ").upper()
+            if response == "N":
+                val['data'][today] = False
+            else:  # TODO: validate input
+                val['data'][today] = response
     # Persist to file
+    print("*** Saving new logs")
     with open("sample.json", "r") as f:
         all_res_dict = json.load(f)
         all_res_dict.update(active_res)
     with open("sample.json", "w") as f:
         json.dump(all_res_dict, f)
+    print("*** Saved!")
+    print("*** Taking you back to main menu in 3, 2, 1...")
+    sleep(2)
+    os.system('clear')
 
 
 def visualize_resolutions():
