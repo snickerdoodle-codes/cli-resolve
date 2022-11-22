@@ -60,6 +60,6 @@ def generate_heatmap(filename, notable_month=None, notable_day=None):
     plt.show()
 
 
-generate_heatmap("nyr19.csv")
+# generate_heatmap("nyr19.csv")
 # generate_heatmap("nyr20.csv")
 # generate_heatmap("nyr21.csv")
