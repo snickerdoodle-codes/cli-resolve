@@ -40,7 +40,16 @@ def generate_heatmap(filename, notable_month=None, notable_day=None):
     df = pd.read_csv(f"data/converted/{filename}")
 
     df_map = df.pivot("Month", "Day", "Resolutions Met")
-    nyr_map = sns.heatmap(df_map, vmin=0, vmax=5, cmap="inferno", square=True, cbar_kws={'orientation': 'horizontal'})
+    nyr_map = sns.heatmap(
+        df_map,
+        vmin=0,
+        vmax=5,
+        cmap="inferno",
+        square=True,
+        cbar_kws={'orientation': 'horizontal'}
+    ).set(
+        title=f"{df['Year'][0]}"
+    )
 
     # TODO: use kwargs and allow for multiple notable dates
     if notable_month and notable_day:
