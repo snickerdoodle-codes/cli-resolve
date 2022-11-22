@@ -80,8 +80,12 @@ def log_resolutions():
                 val['data'][today] = False
             else:
                 print(f"Invalid input: {response}")
-    print(active_res)
     # Persist to file
+    with open("sample.json", "r") as f:
+        all_res_dict = json.load(f)
+        all_res_dict.update(active_res)
+    with open("sample.json", "w") as f:
+        json.dump(all_res_dict, f)
 
 
 def visualize_resolutions():
