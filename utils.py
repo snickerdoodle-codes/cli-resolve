@@ -3,8 +3,8 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 
-def convert_legacy_resolutions(file_name):
-    df = pd.read_csv(f"data/legacy/{file_name}")
+def convert_legacy_resolutions(filename):
+    df = pd.read_csv(f"data/legacy/{filename}")
     pd.set_option('display.max_columns', None)
     print(f"Preview of uploaded dataset:\n{df.head()}\n")
 
@@ -17,6 +17,8 @@ def convert_legacy_resolutions(file_name):
     except KeyError as e:
         print(f"No column called={e}: trying 'date' instead")
         df[['Month', 'Day', 'Year']] = df['date'].str.split('/', expand=True)
+    # Convert 2-digit year to 4-digit year
+    df['Year'] = ["20" + year if len(year) == 2 else year for year in df['Year']]
     df['Month'] = df['Month'].astype(int)
     df['Day'] = df['Day'].astype(int)
     df['Year'] = df['Year'].astype(int)
@@ -31,15 +33,23 @@ def convert_legacy_resolutions(file_name):
     df['Resolutions Met'] = resolution_bools.sum(axis=1)
 
     # Save cleaned df as CSV
-    df.to_csv(f"data/converted/{file_name}")
+    df.to_csv(f"data/converted/{filename}", index=False)
 
 
-def generate_heatmap(csv_filepath, notable_month=None, notable_day=None):
-    # TODO: read filename instead of filepath from a folder containing all valid data, converted or not
-    df = pd.read_csv(csv_filepath)
+def generate_heatmap(filename, notable_month=None, notable_day=None):
+    df = pd.read_csv(f"data/converted/{filename}")
 
     df_map = df.pivot("Month", "Day", "Resolutions Met")
-    nyr_map = sns.heatmap(df_map, vmin=0, vmax=5, cmap="inferno", square=True, cbar_kws={'orientation': 'horizontal'})
+    nyr_map = sns.heatmap(
+        df_map,
+        vmin=0,
+        vmax=5,
+        cmap="inferno",
+        square=True,
+        cbar_kws={'orientation': 'horizontal'}
+    ).set(
+        title=f"{df['Year'][0]}"
+    )
 
     # TODO: use kwargs and allow for multiple notable dates
     if notable_month and notable_day:
@@ -50,4 +60,6 @@ def generate_heatmap(csv_filepath, notable_month=None, notable_day=None):
     plt.show()
 
 
-generate_heatmap("data/converted/nyr20.csv")
+# generate_heatmap("nyr19.csv")
+# generate_heatmap("nyr20.csv")
+# generate_heatmap("nyr21.csv")

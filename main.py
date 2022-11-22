@@ -7,15 +7,16 @@ def view_active_resolutions():
     pass
 
 
-def add_resolution(curr_date):
+def add_resolution():
+    today = date.today()
     res_id = input("Enter a short ID for this resolution in snake_case: ")
     res_descript = input("Describe this resolution: ")
-    res_creation_date = curr_date
+    res_creation_date = today
     is_active = True
     is_nyres = input("Is this a New Year's resolution? (Y/N): ")
     # TODO: wrap converting Y/N inputs to True/False into a function
     if is_nyres.upper() == "Y":
-        res_expiration_date = date(curr_date.year, 12, 31)
+        res_expiration_date = date(today.year, 12, 31)
     elif is_nyres.upper() == "N":
         # Does this resolution have an expiration date?
         pass
@@ -57,7 +58,7 @@ def deactivate_resolution():
     pass
 
 
-def update_todays_resolutions():
+def log_resolutions():
     pass
 
 
@@ -65,12 +66,24 @@ def visualize_resolutions():
     pass
 
 
+OPTION_MENU = {
+    "1": {
+        "text": "log resolutions",
+        "function": log_resolutions,
+    },
+    "2": {
+        "text": "add resolution",
+        "function": add_resolution,
+    },
+}
+
+
 def main():
-    today = date.today()
-    print(f"Welcome to ✨ Resolve ✨\nToday is {today}")
-    command = input("What would you like to do?: ")
-    if "add res" in command:
-        add_resolution(today)
+    print(f"Welcome to ✨ Resolve ✨\n")
+    for key, val in OPTION_MENU.items():
+        print(f"{key} - {val['text']}")
+    command = input("\nWhat would you like to do?: ")
+    OPTION_MENU[command]["function"]()
 
 
 if __name__ == "__main__":
