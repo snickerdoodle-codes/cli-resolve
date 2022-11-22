@@ -60,6 +60,41 @@ def generate_heatmap(filename, notable_month=None, notable_day=None):
     plt.show()
 
 
+def generate_minimap(filename):
+    df = pd.read_csv(f"data/converted/{filename}")
+    pd.set_option('display.max_columns', None)
+    print(f"Preview of uploaded dataset:\n{df.head()}\n")
+
+    cols = input("Enter a comma-separated list of columns to create minimaps from (e.g. exercise,skincare): ")
+    col_list = cols.split(",")
+
+    for res in col_list:
+        try:
+            df_map = df.pivot("Month", "Day", res)
+            minimap = sns.heatmap(
+                df_map,
+                vmin=0,
+                vmax=1,
+                cmap="binary",
+                square=True,
+                cbar=False,
+            ).set(
+                title=f"{res}"
+            )
+            sns.despine(
+                top=False,
+                right=False,
+                left=False,
+                bottom=False,
+            )
+        except Exception as e:
+            print(f"Something went wrong: {e}\n"
+                  f"Spelling matters -- perhaps `{res}` is not the name of the column?")
+
+    plt.show()
+
+
 # generate_heatmap("nyr19.csv")
 # generate_heatmap("nyr20.csv")
 # generate_heatmap("nyr21.csv")
+generate_minimap("nyr20.csv")
