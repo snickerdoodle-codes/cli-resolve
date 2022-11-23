@@ -86,6 +86,7 @@ def print_detail_codes(detail_codes):
 def log_resolutions():
     active_res = get_active_resolutions()
     if not active_res:
+        print("You don't have any active resolutions!")
         go_home()
         return
     today = date.today().strftime("%m/%d/%Y")
@@ -150,6 +151,7 @@ OPTION_MENU = {
 
 
 # TODO: users should be able to return to main menu at any time by entering 'main'
+# this should abort their current operation if they're trying to add or edit something
 def main():
     while True:
         print(f"Welcome to ✨ Resolve ✨\n")
