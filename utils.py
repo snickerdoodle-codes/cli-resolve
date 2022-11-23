@@ -32,6 +32,14 @@ def convert_legacy_resolutions(filename):
     # Create new column that sums up total resolutions met per day
     resolution_bools = df.iloc[:, data_start:data_end + 1].astype(bool)
     df['Resolutions Met'] = resolution_bools.sum(axis=1)
+    # Create new boolean columns from categorical resolutions
+    start = data_start
+    while start < data_end + 1:
+        end = start + 1
+        col_name = df.iloc[:, start:end].columns.values[0]
+        df[f"{col_name}_bool"] = df.iloc[:, start:end].astype(bool)
+        df[f"{col_name}_bool"] = df[f"{col_name}_bool"].astype(int)
+        start += 1
 
     # Save cleaned df as CSV
     df.to_csv(f"data/converted/{filename}", index=False)
@@ -79,7 +87,7 @@ def generate_minimap(filename):
         else:
             break
 
-    fig, axes = plt.subplots(nrows=num_rows, ncols=num_cols, sharey=True)
+    fig, axes = plt.subplots(nrows=num_rows, ncols=num_cols)
     i = 0
     j = 0
     for res in col_list:
@@ -133,3 +141,4 @@ def generate_minimap(filename):
 # generate_heatmap("nyr20.csv")
 # generate_heatmap("nyr21.csv")
 # generate_minimap("nyr21.csv")
+# generate_minimap("nyr_2022_sample_b.csv")
