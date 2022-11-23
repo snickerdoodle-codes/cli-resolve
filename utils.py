@@ -141,5 +141,4 @@ def generate_minimap(filename):
 # generate_heatmap("nyr20.csv")
 # generate_heatmap("nyr21.csv")
 # generate_minimap("nyr21.csv")
-# convert_legacy_resolutions("nyr_2022_sample_b.csv")
-generate_minimap("nyr_2022_sample_b.csv")
+# generate_minimap("nyr_2022_sample_b.csv")
