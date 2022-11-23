@@ -75,11 +75,12 @@ def deactivate_resolution():
     pass
 
 
-def print_detail_codes(res_dict):
+def print_detail_codes(detail_codes):
     codes = ""
-    for key, val in res_dict["res_detail_codes"].items():
-        codes += f"{key} - {val}\n"
-    return codes
+    if detail_codes:
+        for key, val in detail_codes.items():
+            codes += f"{key} - {val}\n"
+    return print(codes)
 
 
 def log_resolutions():
@@ -99,11 +100,23 @@ def log_resolutions():
                 print(f"Invalid input: {response}")
         else:
             print(f"- Did you `{val['res_descript']}` today?")
-            print(f"{print_detail_codes(val)}")
-            response = input(f"Enter the code or codes for your activities, or 'N' for no: ").upper()
+            codes = val["res_detail_codes"]
+            print_detail_codes(codes)
+            # TODO: validate input
+            response = input(f"Enter an existing or new detail code, a comma-separated list of existing detail codes,"
+                             f" or 'N' for no: ").upper()
             if response == "N":
                 val['data'][today] = False
-            else:  # TODO: validate input
+            # Split response into list
+            else:
+                response_list = response.split(",")
+                # Check that each code is already a defined code
+                for char in response_list:
+                    if char not in codes:
+                        print(f"`{char}` is not defined yet, but we can add it now")
+                        new_code_descript = input(f"What activity does `{char}` stand for?: ")
+                        new_code = {char: new_code_descript}
+                        codes.update(new_code)
                 val['data'][today] = response
     # Persist to file
     print("*** Saving new logs")
