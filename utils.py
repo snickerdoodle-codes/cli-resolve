@@ -2,6 +2,18 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import math
+from time import sleep
+import os
+
+
+def go_home():
+    """
+    Takes the user back to the main menu after a showy message
+    :return:
+    """
+    print("*** Taking you back to main menu in 3, 2, 1...")
+    sleep(2)
+    os.system('clear')
 
 
 def convert_legacy_resolutions(filename):

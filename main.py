@@ -14,56 +14,57 @@ def get_active_resolutions():
     for key, val in all_res_dict.items():
         if val["is_active"]:
             active_res_dict[key] = val
-    # print(f"active resolutions: {active_res_dict}")
     return active_res_dict
 
 
 def add_resolution():
     today = date.today()
     res_id = input("Enter a short ID for this resolution in snake_case: ")
+    # TODO: check that res_id has not already been used
     res_descript = input("Describe this resolution: ")
     res_creation_date = today
     is_active = True
-    is_nyres = input("Is this a New Year's resolution? (Y/N): ")
-    # TODO: wrap converting Y/N inputs to True/False into a function
-    if is_nyres.upper() == "Y":
-        res_expiration_date = date(today.year, 12, 31)
-    elif is_nyres.upper() == "N":
-        # Does this resolution have an expiration date?
-        pass
+    res_expiration_date = input("When does this resolution expire? ('MM/DD/YYYY' or 'N' for no expiration): ").upper()
+    if res_expiration_date == "N":
+        res_expiration_date = None
     else:
-        # Invalid input
+        # TODO: validate and clean input
         pass
     is_binary = input("Is this resolution's outcome binary? For example, for the resolution to exercise, "
                       "a binary outcome is whether you exercised or did not exercise. "
                       "In contrast, a categorical outcome names the kind of exercise you did (e.g. "
-                      "run/bike/swim). (Y/N): ")
-    if is_binary.upper() == "Y":
+                      "run/bike/swim). (Y/N): ").upper()
+    if is_binary == "Y":
         is_binary = True
-    elif is_binary.upper() == "N":
+    elif is_binary == "N":
         is_binary = False
     else:
-        # Invalid input
+        # TODO: Invalid input
         pass
     if not is_binary:
-        res_detail_codes = {}
+        print("You will be able to tell me what kind of activity you did when you log an entry for this resolution.")
+    res_detail_codes = {}
 
     res_dict = {
         res_id: {
             "res_descript": res_descript,
             "res_creation_date": res_creation_date.strftime("%m/%d/%Y"),
             "is_active": is_active,
-            "res_expiration_date": res_expiration_date.strftime("%m/%d/%Y"),
+            "res_expiration_date": res_expiration_date,
             "is_binary": is_binary,
+            "res_detail_codes": res_detail_codes,
             "data": {},
         }
     }
 
+    print("*** Adding new resolution")
     with open("sample.json", "r") as f:
         all_res_dict = json.load(f)
         all_res_dict.update(res_dict)
     with open("sample.json", "w") as f:
-        json.dump(all_res_dict, f)
+        json.dump(all_res_dict, f, indent=4)
+    print("*** Added new resolution!")
+    go_home()
 
 
 def edit_resolution():
@@ -83,6 +84,9 @@ def print_detail_codes(res_dict):
 
 def log_resolutions():
     active_res = get_active_resolutions()
+    if not active_res:
+        go_home()
+        return
     today = date.today().strftime("%m/%d/%Y")
     for res, val in active_res.items():
         if val['is_binary']:
@@ -107,11 +111,9 @@ def log_resolutions():
         all_res_dict = json.load(f)
         all_res_dict.update(active_res)
     with open("sample.json", "w") as f:
-        json.dump(all_res_dict, f)
-    print("*** Saved!")
-    print("*** Taking you back to main menu in 3, 2, 1...")
-    sleep(2)
-    os.system('clear')
+        json.dump(all_res_dict, f, indent=4)
+    print(f"*** Saved logs for {today}!")
+    go_home()
 
 
 def visualize_resolutions():
@@ -134,6 +136,7 @@ OPTION_MENU = {
 }
 
 
+# TODO: users should be able to return to main menu at any time by entering 'main'
 def main():
     while True:
         print(f"Welcome to ✨ Resolve ✨\n")
