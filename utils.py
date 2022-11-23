@@ -1,6 +1,7 @@
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+import math
 
 
 def convert_legacy_resolutions(filename):
@@ -68,16 +69,30 @@ def generate_minimap(filename):
     cols = input("Enter a comma-separated list of columns to create minimaps from (e.g. exercise,skincare): ")
     col_list = cols.split(",")
 
+    # Calculate the smallest squarish grid that will hold all plots
+    num_maps = len(col_list)
+    num_cols = math.ceil(math.sqrt(num_maps))
+    num_rows = num_cols
+    while (num_rows * num_cols) >= num_maps:
+        if ((num_rows - 1) * num_cols) >= num_maps:
+            num_rows -= 1
+        else:
+            break
+
+    fig, axes = plt.subplots(nrows=num_rows, ncols=num_cols, sharey=True)
+    i = 0
+    j = 0
     for res in col_list:
         try:
             df_map = df.pivot("Month", "Day", res)
-            minimap = sns.heatmap(
+            nyr_map = sns.heatmap(
                 df_map,
                 vmin=0,
                 vmax=1,
                 cmap="binary",
                 square=True,
                 cbar=False,
+                ax=axes[i][j] if num_maps > 2 else axes[j]
             ).set(
                 title=f"{res}"
             )
@@ -87,14 +102,34 @@ def generate_minimap(filename):
                 left=False,
                 bottom=False,
             )
+            # Fill across columns first, then move down to next row
+            if num_maps > 2:
+                if j < num_cols - 1:
+                    j += 1
+                else:
+                    j = 0
+                    i += 1
+            else:
+                j += 1
         except Exception as e:
             print(f"Something went wrong: {e}\n"
                   f"Spelling matters -- perhaps `{res}` is not the name of the column?")
 
+    # Remove empty plots from grid by continuing to read through cols, then rows, until out of rows
+    if num_maps > 2:
+        while i < num_rows:
+            fig.delaxes(axes[i][j])
+            if j < num_cols - 1:
+                j += 1
+            else:
+                j = 0
+                i += 1
+
+    fig.subplots_adjust(hspace=0)
     plt.show()
 
 
 # generate_heatmap("nyr19.csv")
 # generate_heatmap("nyr20.csv")
 # generate_heatmap("nyr21.csv")
-generate_minimap("nyr20.csv")
+# generate_minimap("nyr21.csv")
