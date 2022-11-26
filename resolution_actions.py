@@ -1,4 +1,3 @@
-import json
 from datetime import date
 
 from resolution_utils import *
@@ -46,6 +45,7 @@ def log_resolutions():
                         new_code = {char: new_code_descript}
                         codes.update(new_code)
                 val['data'][log_date] = response
+    # TODO: preview new log
     # Persist to file
     print("*** Saving new logs")
     with open("data/resolutions.json", "r") as f:

@@ -1,7 +1,7 @@
 import sys
-import os
 
 from resolution_actions import *
+from export_actions import *
 
 
 class Menu:
@@ -19,6 +19,14 @@ class Menu:
                 "text": "toggle active resolutions",
                 "function": toggle_active_resolutions,
             },
+            "4": {
+                "text": "export csv",
+                "function": export_csv,
+            },
+            "5": {
+                "text": "export graph",
+                "function": export_graph,
+            }
         }
 
     def print_menu(self):
