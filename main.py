@@ -1,10 +1,6 @@
 from menu import Menu
 
 
-def edit_resolution():
-    pass
-
-
 def visualize_resolutions():
     pass
 

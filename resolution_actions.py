@@ -58,53 +58,60 @@ def log_resolutions():
 
 
 def add_resolution():
-    today = date.today()
-    res_id = input("Enter a short ID for this resolution in snake_case: ")
-    # TODO: check that res_id has not already been used
-    res_descript = input("Describe this resolution: ")
-    res_creation_date = today
-    is_active = True
-    res_expiration_date = input("When does this resolution expire? ('MM/DD/YYYY' or 'N' for no expiration): ").upper()
-    if res_expiration_date == "N":
-        res_expiration_date = None
-    else:
-        # TODO: validate and clean input
-        pass
-    is_binary = input("Is this resolution's outcome binary? For example, for the resolution to exercise, "
-                      "a binary outcome is whether you exercised or did not exercise. "
-                      "In contrast, a categorical outcome names the kind of exercise you did (e.g. "
-                      "run/bike/swim). (Y/N): ").upper()
-    if is_binary == "Y":
-        is_binary = True
-    elif is_binary == "N":
-        is_binary = False
-    else:
-        # TODO: Invalid input
-        pass
-    if not is_binary:
-        print("You will be able to tell me what kind of activity you did when you log an entry for this resolution.")
-    res_detail_codes = {}
+    while True:
+        today = date.today()
+        res_id = input("Enter a short ID for this resolution in snake_case: ")
+        # TODO: check that res_id has not already been used
+        res_descript = input("Describe this resolution: ")
+        res_creation_date = today
+        is_active = True
+        res_expiration_date = input("When does this resolution expire? ('MM/DD/YYYY' or 'N' for no expiration): ").upper()
+        if res_expiration_date == "N":
+            res_expiration_date = None
+        else:
+            # TODO: validate and clean input
+            pass
+        is_binary = input("Is this resolution's outcome binary? For example, for the resolution to exercise, "
+                          "a binary outcome is whether you exercised or did not exercise. "
+                          "In contrast, a categorical outcome names the kind of exercise you did (e.g. "
+                          "run/bike/swim). (Y/N): ").upper()
+        if is_binary == "Y":
+            is_binary = True
+        elif is_binary == "N":
+            is_binary = False
+        else:
+            # TODO: Invalid input
+            pass
+        if not is_binary:
+            print("You will be able to tell me what kind of activity you did when you log an entry for this resolution.")
+        res_detail_codes = {}
 
-    res_dict = {
-        res_id: {
-            "res_descript": res_descript,
-            "res_creation_date": res_creation_date.strftime("%m/%d/%Y"),
-            "is_active": is_active,
-            "res_expiration_date": res_expiration_date,
-            "is_binary": is_binary,
-            "res_detail_codes": res_detail_codes,
-            "data": {},
+        res_dict = {
+            res_id: {
+                "res_descript": res_descript,
+                "res_creation_date": res_creation_date.strftime("%m/%d/%Y"),
+                "is_active": is_active,
+                "res_expiration_date": res_expiration_date,
+                "is_binary": is_binary,
+                "res_detail_codes": res_detail_codes,
+                "data": {},
+            }
         }
-    }
 
-    print("*** Adding new resolution")
-    with open("data/resolutions.json", "r") as f:
-        all_res_dict = json.load(f)
-        all_res_dict.update(res_dict)
-    with open("data/resolutions.json", "w") as f:
-        json.dump(all_res_dict, f, indent=4)
-    print("*** Added new resolution!")
-    go_home()
+        print(f"Preview: {res_dict}")
+        confirm = input("Does everything look right? (Y/N): ").upper()
+        if confirm == "Y":
+            print("*** Adding new resolution")
+            with open("data/resolutions.json", "r") as f:
+                all_res_dict = json.load(f)
+                all_res_dict.update(res_dict)
+            with open("data/resolutions.json", "w") as f:
+                json.dump(all_res_dict, f, indent=4)
+            print("*** Added new resolution!")
+            go_home()
+            return
+        else:
+            print("Let's try this again")
 
 
 def toggle_active_resolutions():
