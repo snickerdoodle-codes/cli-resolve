@@ -2,19 +2,6 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import math
-from time import sleep
-import os
-
-
-def go_home(delay=2):
-    """
-    Takes the user back to the main menu after a showy message
-    :return:
-    """
-    if delay > 0:
-        print("*** Taking you back to main menu in 3, 2, 1...")
-    sleep(delay)
-    os.system('clear')
 
 
 def convert_legacy_resolutions(filename):
