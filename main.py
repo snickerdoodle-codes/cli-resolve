@@ -2,19 +2,27 @@ import os
 import sys
 from datetime import date
 import json
-from time import sleep
-import csv
 from utils import *
 
 
 def get_active_resolutions():
-    with open("sample.json", "r") as f:
+    with open("data/resolutions.json", "r") as f:
         all_res_dict = json.load(f)
     active_res_dict = {}
     for key, val in all_res_dict.items():
         if val["is_active"]:
             active_res_dict[key] = val
     return active_res_dict
+
+
+def view_active_resolutions():
+    active_res_dict = get_active_resolutions()
+    for key in active_res_dict:
+        print(f"- {key}")
+    if len(active_res_dict) == 0:
+        print("No active resolutions found")
+    # Returns to main menu upon pressing enter key
+    input("")
 
 
 def add_resolution():
@@ -58,20 +66,16 @@ def add_resolution():
     }
 
     print("*** Adding new resolution")
-    with open("sample.json", "r") as f:
+    with open("data/resolutions.json", "r") as f:
         all_res_dict = json.load(f)
         all_res_dict.update(res_dict)
-    with open("sample.json", "w") as f:
+    with open("data/resolutions.json", "w") as f:
         json.dump(all_res_dict, f, indent=4)
     print("*** Added new resolution!")
     go_home()
 
 
 def edit_resolution():
-    pass
-
-
-def deactivate_resolution():
     pass
 
 
@@ -121,10 +125,10 @@ def log_resolutions():
                 val['data'][today] = response
     # Persist to file
     print("*** Saving new logs")
-    with open("sample.json", "r") as f:
+    with open("data/resolutions.json", "r") as f:
         all_res_dict = json.load(f)
         all_res_dict.update(active_res)
-    with open("sample.json", "w") as f:
+    with open("data/resolutions.json", "w") as f:
         json.dump(all_res_dict, f, indent=4)
     print(f"*** Saved logs for {today}!")
     go_home()
@@ -145,7 +149,7 @@ OPTION_MENU = {
     },
     "3": {
         "text": "view active resolutions",
-        "function": get_active_resolutions,
+        "function": view_active_resolutions,
     },
 }
 

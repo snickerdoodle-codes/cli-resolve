@@ -6,13 +6,14 @@ from time import sleep
 import os
 
 
-def go_home():
+def go_home(delay=2):
     """
     Takes the user back to the main menu after a showy message
     :return:
     """
-    print("*** Taking you back to main menu in 3, 2, 1...")
-    sleep(2)
+    if delay > 0:
+        print("*** Taking you back to main menu in 3, 2, 1...")
+    sleep(delay)
     os.system('clear')
 
 
