@@ -12,7 +12,7 @@ def log_resolutions():
         return
     today_or_backdate = input("Are you logging for today? ('Y' or 'MM/DD/YYYY' for backdate): ").upper()
     if today_or_backdate == "Y":
-        log_date = date.today().strftime("%m/%d/%Y")
+        log_date = date.today().strftime("%-m/%-d/%Y")
     else:
         # TODO: validate input
         log_date = today_or_backdate
@@ -89,7 +89,7 @@ def add_resolution():
         res_dict = {
             res_id: {
                 "res_descript": res_descript,
-                "res_creation_date": res_creation_date.strftime("%m/%d/%Y"),
+                "res_creation_date": res_creation_date.strftime("%-m/%-d/%Y"),
                 "is_active": is_active,
                 "res_expiration_date": res_expiration_date,
                 "is_binary": is_binary,

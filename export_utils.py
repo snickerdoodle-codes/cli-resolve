@@ -19,7 +19,7 @@ def get_res_fieldnames(res_dict, start_date_str, end_date):
 def check_data_against_range(data, start_date_str, end_date):
     curr_date = datetime.strptime(start_date_str, "%m/%d/%Y")
     while curr_date <= end_date:
-        curr_date_str = datetime.strftime(curr_date, "%m/%d/%Y")
+        curr_date_str = datetime.strftime(curr_date, "%-m/%-d/%Y")
         if curr_date_str in data.keys():
             # We're happy as long as there's a single date with data
             return True
@@ -29,11 +29,48 @@ def check_data_against_range(data, start_date_str, end_date):
 
 def write_res_row(fieldnames, curr_data, fname_start, fname_end):
     date_str = curr_data["date"]
-    with open(f"data/converted/res_{fname_start}_{fname_end}.csv", "a", newline="") as f:
+    with open(f"data/exports/res_{fname_start}_{fname_end}.csv", "a", newline="") as f:
         w = csv.DictWriter(f, fieldnames=fieldnames)
         if f.tell() == 0:  # write header only if blank file
             w.writeheader()
         w.writerow(curr_data)
+
+
+def convert_resolutions(filepath):
+    filename = filepath.split("data/exports/")[1]
+    df = pd.read_csv(filepath)
+    data_start = 1
+    data_end = len(df.columns) - 1
+
+    # TODO: make this DRY (compare with convert_legacy_resolutions)
+    df[['Month', 'Day', 'Year']] = df['date'].str.split('/', expand=True)
+
+    df['Month'] = df['Month'].astype(int)
+    df['Day'] = df['Day'].astype(int)
+    df['Year'] = df['Year'].astype(int)
+
+    # Replace falsy values with 0's, otherwise the boolean conversion will return True for "0" and "0.0"
+    df.fillna(0, inplace=True)
+    df = df.replace('0', 0)
+    df = df.replace('0.0', 0)
+    df = df.replace('False', 0)
+    df = df.replace('True', 1)
+
+    # Create new column that sums up total resolutions met per day
+    resolution_bools = df.iloc[:, data_start:data_end + 1].astype(bool)
+    df['Resolutions Met'] = resolution_bools.sum(axis=1)
+
+    # Create new boolean columns from categorical resolutions
+    start = data_start
+    while start < data_end + 1:
+        end = start + 1
+        col_name = df.iloc[:, start:end].columns.values[0]
+        df[f"{col_name}_bool"] = df.iloc[:, start:end].astype(bool)
+        df[f"{col_name}_bool"] = df[f"{col_name}_bool"].astype(int)
+        start += 1
+
+    # Save cleaned df as CSV
+    df.to_csv(f"data/converted/cleaned_{filename}", index=False)
 
 
 def convert_legacy_resolutions(filename):
@@ -77,8 +114,8 @@ def convert_legacy_resolutions(filename):
     df.to_csv(f"data/converted/{filename}", index=False)
 
 
-def generate_heatmap(filename, notable_month=None, notable_day=None):
-    df = pd.read_csv(f"data/converted/{filename}")
+def generate_heatmap(filepath, notable_month=None, notable_day=None):
+    df = pd.read_csv(filepath)
 
     df_map = df.pivot("Month", "Day", "Resolutions Met")
     nyr_map = sns.heatmap(
