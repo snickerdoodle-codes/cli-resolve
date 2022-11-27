@@ -36,6 +36,7 @@ class Menu:
             print(f"{key} - {val['text']}")
         print("Enter 'q' to quit\n")
         command = input("What would you like to do? (enter #): ")
+        print()
         if command == "q":
             sys.exit("Goodbye!")
         self.options[command]["function"]()
