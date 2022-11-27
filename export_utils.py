@@ -1,7 +1,38 @@
+from datetime import datetime, timedelta
+import csv
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import math
+
+
+def get_res_fieldnames(res_dict, start_date_str, end_date):
+    res_fields = []
+    for res_id, entry in res_dict.items():
+        log_data = entry["data"]
+        has_data = check_data_against_range(log_data, start_date_str, end_date)
+        if has_data:
+            res_fields.append(res_id)
+    return res_fields
+
+
+def check_data_against_range(data, start_date_str, end_date):
+    curr_date = datetime.strptime(start_date_str, "%m/%d/%Y")
+    while curr_date <= end_date:
+        curr_date_str = datetime.strftime(curr_date, "%m/%d/%Y")
+        if curr_date_str in data.keys():
+            # We're happy as long as there's a single date with data
+            return True
+        curr_date += timedelta(days=1)
+    return False
+
+
+def write_res_row(fieldnames, curr_data):
+    with open(f"data/converted/res_export.csv", "a", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=fieldnames)
+        if f.tell() == 0:  # write header only if blank file
+            w.writeheader()
+        w.writerow(curr_data)
 
 
 def convert_legacy_resolutions(filename):
