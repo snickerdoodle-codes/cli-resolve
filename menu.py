@@ -1,4 +1,5 @@
 import sys
+from time import sleep
 
 from resolution_actions import *
 from export_actions import *
@@ -39,4 +40,8 @@ class Menu:
         print()
         if command == "q":
             sys.exit("Goodbye!")
-        self.options[command]["function"]()
+        try:
+            self.options[command]["function"]()
+        except KeyError as e:
+            print(f"{command} is not a valid command")
+            sleep(1)
