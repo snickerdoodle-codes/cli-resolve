@@ -204,10 +204,3 @@ def generate_minimap(filename):
 
     fig.subplots_adjust(hspace=0)
     plt.show()
-
-
-# generate_heatmap("nyr19.csv")
-# generate_heatmap("nyr20.csv")
-# generate_heatmap("nyr21.csv")
-# generate_minimap("nyr21.csv")
-# generate_minimap("nyr_2022_sample_b.csv")

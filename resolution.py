@@ -1,7 +1,7 @@
 from datetime import date
 
-from resolution_utils import *
-from menu_utils import *
+from utils.resolution_utils import *
+from utils.menu_utils import *
 
 
 def log_resolutions():

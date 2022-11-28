@@ -2,13 +2,13 @@ import json
 
 
 def get_all_resolutions():
-    with open("data/resolutions.json", "r") as f:
+    with open("../data/resolutions.json", "r") as f:
         all_res_dict = json.load(f)
     return all_res_dict
 
 
 def get_active_resolutions():
-    with open("data/resolutions.json", "r") as f:
+    with open("../data/resolutions.json", "r") as f:
         all_res_dict = json.load(f)
     active_res_dict = {}
     for key, val in all_res_dict.items():
