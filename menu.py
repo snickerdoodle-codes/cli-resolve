@@ -1,8 +1,8 @@
 import sys
 from time import sleep
 
-from resolution_actions import *
-from export_actions import *
+from resolution import *
+from export import *
 
 
 class Menu:
