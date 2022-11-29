@@ -48,10 +48,10 @@ def log_resolutions():
     # TODO: preview new log
     # Persist to file
     print("*** Saving new logs")
-    with open("data/resolutions.json", "r") as f:
+    with open("../data/resolutions.json", "r") as f:
         all_res_dict = json.load(f)
         all_res_dict.update(active_res)
-    with open("data/resolutions.json", "w") as f:
+    with open("../data/resolutions.json", "w") as f:
         json.dump(all_res_dict, f, indent=4)
     print(f"*** Saved logs for {log_date}!")
     go_home()
@@ -102,10 +102,10 @@ def add_resolution():
         confirm = input("Does everything look right? (Y/N): ").upper()
         if confirm == "Y":
             print(f"*** Adding new resolution={res_id}")
-            with open("data/resolutions.json", "r") as f:
+            with open("../data/resolutions.json", "r") as f:
                 all_res_dict = json.load(f)
                 all_res_dict.update(res_dict)
-            with open("data/resolutions.json", "w+") as f:
+            with open("../data/resolutions.json", "w+") as f:
                 json.dump(all_res_dict, f, indent=4)
             print("*** Added new resolution!")
             go_home()
@@ -130,7 +130,7 @@ def toggle_active_resolutions():
             return
         try:
             all_res_dict[res_key]["is_active"] = not all_res_dict[res_key]["is_active"]
-            with open("data/resolutions.json", "w") as f:
+            with open("../data/resolutions.json", "w") as f:
                 json.dump(all_res_dict, f, indent=4)
             print(f"*** Toggled active status of `{res_key}`!")
 

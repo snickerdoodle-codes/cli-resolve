@@ -3,6 +3,8 @@ import os
 import sys
 import json
 
+from ..utils.resolution_utils import *
+
 # INPUTS
 filename = "nyr19.csv"
 
@@ -18,6 +20,10 @@ print(f"Preview of uploaded dataset:\n{df.head()}\n")
 data_start = int(input("index of first column containing resolution data: "))
 data_end = int(input("index of last column containing resolution data: "))
 
+# Load app data
+with open("data/back.json", "r") as f:
+    app_data = json.load(f)
+
 # Loop through each resolution column
 days = len(df)
 curr_day = 0
@@ -25,9 +31,11 @@ curr_col = data_start
 resolutions = {}
 while curr_col <= data_end:
     col_name = df.iloc[:, curr_col].name
-    print(f"Adding resolution={col_name}")
-    # TODO: option to enter a different res_id
+    print(f"*** Adding resolution={col_name}")
     # TODO: check whether this resolution already exists in app data
+    if col_name in app_data:
+        merge_data = input(f"res={col_name} already exists. Merge with existing data? (Y/N): ")
+    # TODO: option to enter a different res_id
     # TODO: DRY these prompts here and in resolutions.py
     res_descript = input("Provide a short description for this resolution: ")
     # TODO: calculate res_creation_date (first date entry from current data OR res_creation_date of existing
@@ -81,6 +89,6 @@ while curr_col <= data_end:
     curr_col += 1
 
 print("*** Backpopulating resolutions data")
-with open("../data/back.json", "w+") as f:
+with open("../../data/back.json", "w+") as f:
     json.dump(resolutions, f, indent=4)
 print("*** Saved!")
