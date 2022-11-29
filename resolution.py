@@ -101,7 +101,7 @@ def add_resolution():
         print(f"Preview: {res_dict}")
         confirm = input("Does everything look right? (Y/N): ").upper()
         if confirm == "Y":
-            print("*** Adding new resolution")
+            print(f"*** Adding new resolution={res_id}")
             with open("data/resolutions.json", "r") as f:
                 all_res_dict = json.load(f)
                 all_res_dict.update(res_dict)
