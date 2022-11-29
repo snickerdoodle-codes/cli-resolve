@@ -18,11 +18,9 @@ def log_resolutions():
         log_date = today_or_backdate
     for res, val in active_res.items():
         if val['is_binary']:
-            response = input(f"- Did you `{val['res_descript']}`? (Y/N): ").upper()
-            if response == "Y":
-                val['data'][log_date] = True
-            elif response == "N":
-                val['data'][log_date] = False
+            response, is_valid = booleanize_yes_no(input(f"- Did you `{val['res_descript']}`? (Y/N): "))
+            if is_valid:
+                val['data'][log_date] = response
             else:
                 print(f"Invalid input: {response}")
         else:
@@ -48,10 +46,10 @@ def log_resolutions():
     # TODO: preview new log
     # Persist to file
     print("*** Saving new logs")
-    with open("data/resolutions.json", "r") as f:
+    with open("../data/resolutions.json", "r") as f:
         all_res_dict = json.load(f)
         all_res_dict.update(active_res)
-    with open("data/resolutions.json", "w") as f:
+    with open("../data/resolutions.json", "w") as f:
         json.dump(all_res_dict, f, indent=4)
     print(f"*** Saved logs for {log_date}!")
     go_home()
@@ -65,25 +63,24 @@ def add_resolution():
         res_descript = input("Describe this resolution: ")
         res_creation_date = today
         is_active = True
-        res_expiration_date = input("When does this resolution expire? ('MM/DD/YYYY' or 'N' for no expiration): ").upper()
+        res_expiration_date = input(
+            "When does this resolution expire? ('MM/DD/YYYY' or 'N' for no expiration): ").upper()
         if res_expiration_date == "N":
             res_expiration_date = None
         else:
             # TODO: validate and clean input
             pass
-        is_binary = input("Is this resolution's outcome binary? For example, for the resolution to exercise, "
-                          "a binary outcome is whether you exercised or did not exercise. "
-                          "In contrast, a categorical outcome names the kind of exercise you did (e.g. "
-                          "run/bike/swim). (Y/N): ").upper()
-        if is_binary == "Y":
-            is_binary = True
-        elif is_binary == "N":
-            is_binary = False
-        else:
+        is_binary, is_valid = booleanize_yes_no(
+            input("Is this resolution's outcome binary? For example, for the resolution to exercise, "
+                  "a binary outcome is whether you exercised or did not exercise. "
+                  "In contrast, a categorical outcome names the kind of exercise you did (e.g. "
+                  "run/bike/swim). (Y/N): "))
+        if not is_valid:
             # TODO: Invalid input
-            pass
+            print(f"Invalid input: {is_binary}")
         if not is_binary:
-            print("You will be able to tell me what kind of activity you did when you log an entry for this resolution.")
+            print(
+                "You will be able to tell me what kind of activity you did when you log an entry for this resolution.")
         res_detail_codes = {}
 
         res_dict = {
@@ -99,13 +96,13 @@ def add_resolution():
         }
 
         print(f"Preview: {res_dict}")
-        confirm = input("Does everything look right? (Y/N): ").upper()
-        if confirm == "Y":
-            print("*** Adding new resolution")
-            with open("data/resolutions.json", "r") as f:
+        confirm = booleanize_yes_no(input("Does everything look right? (Y/N): "))
+        if confirm:
+            print(f"*** Adding new resolution={res_id}")
+            with open("../data/resolutions.json", "r") as f:
                 all_res_dict = json.load(f)
                 all_res_dict.update(res_dict)
-            with open("data/resolutions.json", "w+") as f:
+            with open("../data/resolutions.json", "w+") as f:
                 json.dump(all_res_dict, f, indent=4)
             print("*** Added new resolution!")
             go_home()
@@ -130,7 +127,7 @@ def toggle_active_resolutions():
             return
         try:
             all_res_dict[res_key]["is_active"] = not all_res_dict[res_key]["is_active"]
-            with open("data/resolutions.json", "w") as f:
+            with open("../data/resolutions.json", "w") as f:
                 json.dump(all_res_dict, f, indent=4)
             print(f"*** Toggled active status of `{res_key}`!")
 
