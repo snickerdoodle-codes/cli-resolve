@@ -20,7 +20,7 @@ def check_data_against_range(data, start_date_str, end_date):
     curr_date = datetime.strptime(start_date_str, "%m/%d/%Y")
     while curr_date <= end_date:
         curr_date_str = datetime.strftime(curr_date, "%-m/%-d/%Y")
-        if curr_date_str in data.keys():
+        if curr_date_str in data:
             # We're happy as long as there's a single date with data
             return True
         curr_date += timedelta(days=1)
