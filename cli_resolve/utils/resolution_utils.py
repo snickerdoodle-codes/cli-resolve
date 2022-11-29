@@ -1,8 +1,23 @@
 import json
 
 
-def booleanize_yes_no():
-    pass
+def booleanize_yes_no(input_str):
+    """
+    Takes the response to a Y/N question and outputs the corresponding boolean value.
+    For invalid values, the input string is returned along with a flag indicating invalidity.
+    :param input_str:
+    :return:
+    """
+    if input_str.upper() == "Y":
+        booleanized = True
+        is_valid = True
+    elif input_str.upper() == "N":
+        booleanized = False
+        is_valid = True
+    else:
+        booleanized = input_str
+        is_valid = False
+    return booleanized, is_valid
 
 
 def get_all_resolutions():
