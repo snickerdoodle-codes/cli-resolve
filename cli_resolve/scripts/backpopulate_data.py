@@ -4,13 +4,14 @@ import sys
 import json
 from datetime import datetime
 
-from ..utils.resolution_utils import *
+from cli_resolve.utils.resolution_utils import booleanize_yes_no
 
 # INPUTS
 filename = "nyr19.csv"
 
 # Read the CSV
-filepath = f"../data/cleaned/{filename}"
+dirname = os.path.dirname(__file__)
+filepath = os.path.join(dirname, f"../../data/cleaned/{filename}")
 if not os.path.exists(filepath):
     sys.exit(f"filepath={filepath} does not exist")
 
@@ -22,7 +23,8 @@ data_start = int(input("index of first column containing resolution data: "))
 data_end = int(input("index of last column containing resolution data: "))
 
 # Load app data
-with open("data/back.json", "r") as f:
+filepath = os.path.join(dirname, f"../../data/back.json")
+with open(filepath, "r") as f:
     app_data = json.load(f)
 
 # Loop through each resolution column
@@ -36,8 +38,8 @@ while curr_col <= data_end:
 
     # Check whether this resolution already exists in app data
     exists = col_name in app_data
-    first_date = df.iloc[0, 0]
-    last_date = df.iloc[days - 1, 0]
+    first_date = df["date"][0]
+    last_date = df["date"][days - 1]
 
     if exists:
         merge_data, is_valid = booleanize_yes_no(
@@ -62,19 +64,23 @@ while curr_col <= data_end:
                 # whichever is later
                 last_date_dt = datetime.strptime(last_date, "%m/%d/%Y")
                 exist_expiration_date = app_data[col_name]["res_expiration_date"]
-                exist_expiration_date_dt = datetime.strptime(exist_expiration_date, "%m/%d/%Y")
-                res_expiration_date = last_date if last_date_dt > exist_expiration_date_dt else exist_expiration_date_dt
+                if exist_expiration_date is not None:
+                    exist_expiration_date_dt = datetime.strptime(exist_expiration_date, "%m/%d/%Y")
+                    res_expiration_date = last_date if last_date_dt > exist_expiration_date_dt else exist_expiration_date_dt
+                else:
+                    res_expiration_date = exist_expiration_date
 
-                # TODO: extract res_detail_codes
+                # TODO: extract res_detail_codes and update without overwriting existing
                 res_detail_codes = {}
 
                 app_data[res_id].update(
                     {
                         "res_creation_date": res_creation_date,
                         "res_expiration_date": res_expiration_date,
-                        "res_detail_codes": res_detail_codes,
                     }
                 )
+
+                print(f"currently: {app_data}")
     # New resolution without precedent
     if (not exists) or (not merge_data):
         if exists:
@@ -133,13 +139,14 @@ while curr_col <= data_end:
     print("*** Backpopulating resolutions data")
     while curr_day < days:
         datapoint = df.iloc[curr_day, curr_col]
-        date = df.iloc[curr_day, 0]
+        date = df["date"][curr_day]
         app_data[res_id]["data"][date] = datapoint
         curr_day += 1
     curr_day = 0
     curr_col += 1
 
 print("*** Saving backpopulated resolutions data")
+print(f"app data: {app_data}")
 with open("../../data/back.json", "w+") as f:
     json.dump(app_data, f, indent=4)
 print("*** Saved!")
