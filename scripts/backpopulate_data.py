@@ -7,7 +7,7 @@ import json
 filename = "nyr19.csv"
 
 # Read the CSV
-filepath = f"../data/converted/{filename}"
+filepath = f"../data/cleaned/{filename}"
 if not os.path.exists(filepath):
     sys.exit(f"filepath={filepath} does not exist")
 
