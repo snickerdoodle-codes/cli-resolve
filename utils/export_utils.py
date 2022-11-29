@@ -115,6 +115,7 @@ def convert_legacy_resolutions(filename):
         start += 1
 
     # Save cleaned df as CSV
+    print("*** Saving cleaned csv to data/cleaned/")
     df_cleaned.to_csv(f"data/cleaned/{filename}", index=False)
 
 
@@ -208,6 +209,3 @@ def generate_minimap(filename):
 
     fig.subplots_adjust(hspace=0)
     plt.show()
-
-
-# convert_legacy_resolutions("nyr19.csv")
