@@ -10,8 +10,7 @@ from cli_resolve.utils.resolution_utils import booleanize_yes_no
 filename = "nyr19.csv"
 
 # Read the CSV
-dirname = os.path.dirname(__file__)
-filepath = os.path.join(dirname, f"../../data/cleaned/{filename}")
+filepath = f"../data/cleaned/{filename}"
 if not os.path.exists(filepath):
     sys.exit(f"filepath={filepath} does not exist")
 
@@ -23,8 +22,7 @@ data_start = int(input("index of first column containing resolution data: "))
 data_end = int(input("index of last column containing resolution data: "))
 
 # Load app data
-filepath = os.path.join(dirname, f"../../data/back.json")
-with open(filepath, "r") as f:
+with open("../data/back.json", "r") as f:
     app_data = json.load(f)
 
 # Loop through each resolution column
@@ -146,7 +144,6 @@ while curr_col <= data_end:
     curr_col += 1
 
 print("*** Saving backpopulated resolutions data")
-print(f"app data: {app_data}")
-with open("../../data/back.json", "w+") as f:
+with open("../data/back.json", "w+") as f:
     json.dump(app_data, f, indent=4)
 print("*** Saved!")
