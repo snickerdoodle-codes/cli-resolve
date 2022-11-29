@@ -105,7 +105,7 @@ def add_resolution():
             with open("data/resolutions.json", "r") as f:
                 all_res_dict = json.load(f)
                 all_res_dict.update(res_dict)
-            with open("data/resolutions.json", "w") as f:
+            with open("data/resolutions.json", "w+") as f:
                 json.dump(all_res_dict, f, indent=4)
             print("*** Added new resolution!")
             go_home()
