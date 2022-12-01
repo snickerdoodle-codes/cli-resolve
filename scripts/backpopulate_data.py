@@ -18,8 +18,11 @@ df = pd.read_csv(filepath)
 pd.set_option('display.max_columns', None)
 print(f"Preview of uploaded dataset:\n{df.head()}\n")
 
-data_start = int(input("index of first column containing resolution data: "))
-data_end = int(input("index of last column containing resolution data: "))
+cols = input("Enter a comma-separated list of columns containing resolution data (e.g. exercise,skincare): ")
+col_list = cols.split(",")
+
+# data_start = int(input("index of first column containing resolution data: "))
+# data_end = int(input("index of last column containing resolution data: "))
 
 # Load app data
 with open("../data/back.json", "r") as f:
@@ -28,10 +31,11 @@ with open("../data/back.json", "r") as f:
 # Loop through each resolution column
 days = len(df)
 curr_day = 0
-curr_col = data_start
+curr_col = 0
+data_end = len(col_list) - 1
 
 while curr_col <= data_end:
-    col_name = df.iloc[:, curr_col].name
+    col_name = col_list[curr_col]
     print(f"*** Adding data from resolution={col_name}")
 
     # Check whether this resolution already exists in app data
@@ -94,12 +98,12 @@ while curr_col <= data_end:
                 res_id = input("Let's give this resolution a new res_id: ")
         print(f"*** Creating a new resolution res={res_id}")
         res_descript = input("Provide a short description for this resolution: ")
-        res_creation_date = df.iloc[0, 0]  # first date entry from current data
+        res_creation_date = df.loc[[0], "date"].values[0]  # first date entry from current data
         is_active, is_valid = booleanize_yes_no(input("Is this an active resolution? (Y/N): "))
         if not is_valid:
             # TODO: handle invalid input
             pass
-        is_expired = booleanize_yes_no(input(f"Did this resolution expire on {last_date}? (Y/N)"))
+        is_expired = booleanize_yes_no(input(f"Did this resolution expire on {last_date}? (Y/N): "))
         if is_expired:
             res_expiration_date = last_date
         else:
@@ -131,17 +135,19 @@ while curr_col <= data_end:
             "res_detail_codes": res_detail_codes,
             "data": {},
         }
-        app_data[res_id].update(res)
+        app_data[res_id] = res
 
     # Populate the data dict for both merged and new resolutions
     print("*** Backpopulating resolutions data")
     while curr_day < days:
-        datapoint = df.iloc[curr_day, curr_col]
+        datapoint = df.loc[[curr_day], col_name].values[0]
         date = df["date"][curr_day]
         app_data[res_id]["data"][date] = datapoint
         curr_day += 1
     curr_day = 0
     curr_col += 1
+
+    # Extract res_detail_codes
 
 print("*** Saving backpopulated resolutions data")
 with open("../data/back.json", "w+") as f:
