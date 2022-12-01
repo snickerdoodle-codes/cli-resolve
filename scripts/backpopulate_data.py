@@ -72,9 +72,6 @@ while curr_col <= data_end:
                 else:
                     res_expiration_date = exist_expiration_date
 
-                # TODO: extract res_detail_codes and update without overwriting existing
-                res_detail_codes = {}
-
                 app_data[res_id].update(
                     {
                         "res_creation_date": res_creation_date,
@@ -123,31 +120,36 @@ while curr_col <= data_end:
             # TODO: handle invalid response
             print(f"Invalid input: {merge_data}")
 
-        # TODO: extract res_detail_codes
-        res_detail_codes = {}
-
         res = {
             "res_descript": res_descript,
             "res_creation_date": res_creation_date,
             "is_active": is_active,
             "res_expiration_date": res_expiration_date,
             "is_binary": is_binary,
-            "res_detail_codes": res_detail_codes,
+            "res_detail_codes": {},
             "data": {},
         }
         app_data[res_id] = res
 
     # Populate the data dict for both merged and new resolutions
     print("*** Backpopulating resolutions data")
+    extracted_detail_codes = set()
     while curr_day < days:
         datapoint = df.loc[[curr_day], col_name].values[0]
         date = df["date"][curr_day]
         app_data[res_id]["data"][date] = datapoint
+        if not is_binary:
+            extracted_detail_codes.add(datapoint)
         curr_day += 1
     curr_day = 0
     curr_col += 1
 
-    # Extract res_detail_codes
+    if not is_binary:
+        codes_and_descripts = {}
+        for code in extracted_detail_codes:
+            descript = input(f"What activity does `{code}` stand for?: ")
+            codes_and_descripts[code] = descript
+        app_data[res_id]["res_detail_codes"].update(codes_and_descripts)
 
 print("*** Saving backpopulated resolutions data")
 with open("../data/back.json", "w+") as f:
