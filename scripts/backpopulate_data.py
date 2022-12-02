@@ -21,9 +21,6 @@ print(f"Preview of uploaded dataset:\n{df.head()}\n")
 cols = input("Enter a comma-separated list of columns containing resolution data (e.g. exercise,skincare): ")
 col_list = cols.split(",")
 
-# data_start = int(input("index of first column containing resolution data: "))
-# data_end = int(input("index of last column containing resolution data: "))
-
 # Load app data
 with open("../data/back.json", "r") as f:
     app_data = json.load(f)
@@ -54,6 +51,7 @@ while curr_col <= data_end:
             if merge_data:
                 print(f"*** Merging res={col_name}")
                 res_id = col_name
+                is_binary = app_data[res_id]["is_binary"]
 
                 # Calculate res_creation_date (first date entry from current data OR res_creation_date of existing
                 # resolution, whichever is earlier)
@@ -79,7 +77,6 @@ while curr_col <= data_end:
                     }
                 )
 
-                print(f"currently: {app_data}")
     # New resolution without precedent
     if (not exists) or (not merge_data):
         if exists:
@@ -133,23 +130,41 @@ while curr_col <= data_end:
 
     # Populate the data dict for both merged and new resolutions
     print("*** Backpopulating resolutions data")
-    extracted_detail_codes = set()
+    detail_codes = app_data[res_id]["res_detail_codes"]
+    code_translator = {}  # keep track of recoded datapoints
+
     while curr_day < days:
         datapoint = df.loc[[curr_day], col_name].values[0]
+        if not datapoint:  # binary and non-binary falsy value
+            datapoint = False
+        if is_binary:
+            if datapoint:  # binary truthy value
+                datapoint = True
+        else:
+            if datapoint:  # non-binary truthy value
+                # Check the translator first to see if previously encountered
+                datapoint = code_translator.get(datapoint, datapoint)
+                # Add to detail codes if seeing for first time
+                if datapoint not in detail_codes:
+                    keep_code, is_valid = booleanize_yes_no(input(f"Keep the code `{datapoint}`? (Y/N): "))
+                    if not is_valid:
+                        # TODO: handle invalid response
+                        print(f"Invalid input: {keep_code}")
+                    elif keep_code:  # add new code to res_detail_codes without changing datapoint
+                        descript = input(f"What activity does `{datapoint}` stand for?: ")
+                        detail_codes[datapoint] = descript
+                    else:  # add new code to res_detail_codes and change datapoint
+                        code = input(f"Enter a 1-char code to replace `{datapoint}`: ").upper()
+                        if code not in detail_codes:
+                            descript = input(f"What activity does `{code}` stand for?: ")
+                            detail_codes[code] = descript
+                        code_translator[datapoint] = code
+                        datapoint = code
         date = df["date"][curr_day]
         app_data[res_id]["data"][date] = datapoint
-        if not is_binary:
-            extracted_detail_codes.add(datapoint)
         curr_day += 1
     curr_day = 0
     curr_col += 1
-
-    if not is_binary:
-        codes_and_descripts = {}
-        for code in extracted_detail_codes:
-            descript = input(f"What activity does `{code}` stand for?: ")
-            codes_and_descripts[code] = descript
-        app_data[res_id]["res_detail_codes"].update(codes_and_descripts)
 
 print("*** Saving backpopulated resolutions data")
 with open("../data/back.json", "w+") as f:
