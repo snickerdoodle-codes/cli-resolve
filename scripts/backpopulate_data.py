@@ -18,8 +18,8 @@ df = pd.read_csv(filepath)
 pd.set_option('display.max_columns', None)
 print(f"Preview of uploaded dataset:\n{df.head()}\n")
 
-data_start = int(input("index of first column containing resolution data: "))
-data_end = int(input("index of last column containing resolution data: "))
+cols = input("Enter a comma-separated list of columns containing resolution data (e.g. exercise,skincare): ")
+col_list = cols.split(",")
 
 # Load app data
 with open("../data/back.json", "r") as f:
@@ -28,10 +28,11 @@ with open("../data/back.json", "r") as f:
 # Loop through each resolution column
 days = len(df)
 curr_day = 0
-curr_col = data_start
+curr_col = 0
+data_end = len(col_list) - 1
 
 while curr_col <= data_end:
-    col_name = df.iloc[:, curr_col].name
+    col_name = col_list[curr_col]
     print(f"*** Adding data from resolution={col_name}")
 
     # Check whether this resolution already exists in app data
@@ -50,6 +51,7 @@ while curr_col <= data_end:
             if merge_data:
                 print(f"*** Merging res={col_name}")
                 res_id = col_name
+                is_binary = app_data[res_id]["is_binary"]
 
                 # Calculate res_creation_date (first date entry from current data OR res_creation_date of existing
                 # resolution, whichever is earlier)
@@ -68,9 +70,6 @@ while curr_col <= data_end:
                 else:
                     res_expiration_date = exist_expiration_date
 
-                # TODO: extract res_detail_codes and update without overwriting existing
-                res_detail_codes = {}
-
                 app_data[res_id].update(
                     {
                         "res_creation_date": res_creation_date,
@@ -78,7 +77,6 @@ while curr_col <= data_end:
                     }
                 )
 
-                print(f"currently: {app_data}")
     # New resolution without precedent
     if (not exists) or (not merge_data):
         if exists:
@@ -94,12 +92,12 @@ while curr_col <= data_end:
                 res_id = input("Let's give this resolution a new res_id: ")
         print(f"*** Creating a new resolution res={res_id}")
         res_descript = input("Provide a short description for this resolution: ")
-        res_creation_date = df.iloc[0, 0]  # first date entry from current data
+        res_creation_date = df.loc[[0], "date"].values[0]  # first date entry from current data
         is_active, is_valid = booleanize_yes_no(input("Is this an active resolution? (Y/N): "))
         if not is_valid:
             # TODO: handle invalid input
             pass
-        is_expired = booleanize_yes_no(input(f"Did this resolution expire on {last_date}? (Y/N)"))
+        is_expired = booleanize_yes_no(input(f"Did this resolution expire on {last_date}? (Y/N): "))
         if is_expired:
             res_expiration_date = last_date
         else:
@@ -119,24 +117,49 @@ while curr_col <= data_end:
             # TODO: handle invalid response
             print(f"Invalid input: {merge_data}")
 
-        # TODO: extract res_detail_codes
-        res_detail_codes = {}
-
         res = {
             "res_descript": res_descript,
             "res_creation_date": res_creation_date,
             "is_active": is_active,
             "res_expiration_date": res_expiration_date,
             "is_binary": is_binary,
-            "res_detail_codes": res_detail_codes,
+            "res_detail_codes": {},
             "data": {},
         }
-        app_data[res_id].update(res)
+        app_data[res_id] = res
 
     # Populate the data dict for both merged and new resolutions
     print("*** Backpopulating resolutions data")
+    detail_codes = app_data[res_id]["res_detail_codes"]
+    code_translator = {}  # keep track of recoded datapoints
+
     while curr_day < days:
-        datapoint = df.iloc[curr_day, curr_col]
+        datapoint = df.loc[[curr_day], col_name].values[0]
+        if not datapoint:  # binary and non-binary falsy value
+            datapoint = False
+        if is_binary:
+            if datapoint:  # binary truthy value
+                datapoint = True
+        else:
+            if datapoint:  # non-binary truthy value
+                # Check the translator first to see if previously encountered
+                datapoint = code_translator.get(datapoint, datapoint)
+                # Add to detail codes if seeing for first time
+                if datapoint not in detail_codes:
+                    keep_code, is_valid = booleanize_yes_no(input(f"Keep the code `{datapoint}`? (Y/N): "))
+                    if not is_valid:
+                        # TODO: handle invalid response
+                        print(f"Invalid input: {keep_code}")
+                    elif keep_code:  # add new code to res_detail_codes without changing datapoint
+                        descript = input(f"What activity does `{datapoint}` stand for?: ")
+                        detail_codes[datapoint] = descript
+                    else:  # add new code to res_detail_codes and change datapoint
+                        code = input(f"Enter a 1-char code to replace `{datapoint}`: ").upper()
+                        if code not in detail_codes:
+                            descript = input(f"What activity does `{code}` stand for?: ")
+                            detail_codes[code] = descript
+                        code_translator[datapoint] = code
+                        datapoint = code
         date = df["date"][curr_day]
         app_data[res_id]["data"][date] = datapoint
         curr_day += 1
