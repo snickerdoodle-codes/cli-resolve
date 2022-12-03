@@ -93,6 +93,6 @@ def export_graph():
         print("*** Cleaning data")
         convert_resolutions(exports_filepath)
         print("*** Generating heatmap")
-    # generate_heatmap(cleaned_filepath)
-    generate_minimap(cleaned_filepath)
+    generate_heatmap(cleaned_filepath, notable_days="trips")
+    # generate_minimap(cleaned_filepath)
 

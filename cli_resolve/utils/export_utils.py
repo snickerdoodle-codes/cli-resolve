@@ -4,6 +4,7 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import math
+import json
 
 
 def get_res_fieldnames(res_dict, start_date_str, end_date):
@@ -73,46 +74,85 @@ def convert_resolutions(filepath):
     df.to_csv(f"data/cleaned/{filename}", index=False)
 
 
-def generate_heatmap(filepath, notable_month=None, notable_day=None):
+def generate_heatmap(filepath, notable_days=None):
     df = pd.read_csv(filepath)
 
     try:
+        # Date range within single year
         df_map = df.pivot("Month", "Day", "Resolutions Met")
+        nyr_map = sns.heatmap(
+            df_map,
+            cmap="inferno",
+            square=True,
+            vmin=0,
+            vmax=5,
+            cbar_kws={'orientation': 'horizontal'},
+            xticklabels=True,
+            yticklabels=True,
+        )
+        nyr_map.set(
+            title=f"{df['date'][0]} - {df['date'][len(df['date']) - 1]}"
+        )
+        plt.xticks(rotation=0)
     except ValueError:
+        # Date range spanning multiple years
         df_map = df.pivot(columns=["Year", "Month"], index="Day", values="Resolutions Met")
-    # TODO: the settings below are optimized for multi-year maps
-    nyr_map = sns.heatmap(
-        df_map,
-        # vmin=0,
-        # vmax=5,
-        cmap="inferno",
-        square=True,
-        cbar_kws={'orientation': 'vertical'},
-        xticklabels=True,
-        yticklabels=True,
-    )
-    nyr_map.set(
-        title=f"{df['date'][0]} - {df['date'][len(df['date']) - 1]}"
-    )
-    start_year = df["Year"][0]
-    end_year = df["Year"][len(df["Year"]) - 1]
-    start_month = 1
-    end_month = 12
-    year_month_labs = []
-    for year in range(start_year, end_year + 1):
-        for month in range(start_month, end_month + 1):
-            if month == 1:
-                year_month_labs.append(f"{month}\n{year}")
-            else:
-                year_month_labs.append(month)
-    nyr_map.set_yticklabels(nyr_map.get_yticklabels(), rotation=0)
-    nyr_map.set_xticklabels(year_month_labs, fontdict={'horizontalalignment': 'left'}, rotation=0)
+        nyr_map = sns.heatmap(
+            df_map,
+            cmap="inferno",
+            square=True,
+            cbar_kws={'orientation': 'vertical'},
+            xticklabels=True,
+            yticklabels=True,
+        )
+        nyr_map.set(
+            title=f"{df['date'][0]} - {df['date'][len(df['date']) - 1]}"
+        )
+        start_year = df["Year"][0]
+        end_year = df["Year"][len(df["Year"]) - 1]
+        start_month = 1
+        end_month = 12
+        year_month_labs = []
+        for year in range(start_year, end_year + 1):
+            for month in range(start_month, end_month + 1):
+                if month == 1:
+                    year_month_labs.append(f"{month}\n{year}")
+                else:
+                    year_month_labs.append(month)
+        nyr_map.set_yticklabels(nyr_map.get_yticklabels(), rotation=0)
+        nyr_map.set_xticklabels(year_month_labs, fontdict={'horizontalalignment': 'left'}, rotation=0)
 
-    # TODO: use kwargs and allow for multiple notable dates
-    if notable_month and notable_day:
-        day_coords = [notable_day - 1, notable_month - 1]
-        rect = plt.Rectangle(day_coords, 1, 1, color="gold", linewidth=2.5, fill=False)
-        nyr_map.add_patch(rect)
+    # TODO: currently only works for within-year maps
+    if notable_days:
+        # Load from JSON file passed into parameter
+        try:
+            with open(f"data/{notable_days}.json", "r") as f:
+                notable_days = json.load(f)
+
+            for date, descript in notable_days.items():
+                date_list = date.split("/")
+                month = int(date_list[0])
+                day = int(date_list[1])
+                date_coords = (day - 1, month - 1)
+                rect = plt.Rectangle(date_coords,
+                                     width=1,
+                                     height=1,
+                                     color="white",
+                                     linewidth=0,
+                                     fill=False,
+                                     hatch='..',
+                                     alpha=0.6)
+                nyr_map.add_patch(rect)
+                nyr_map.text(day - 0.5,
+                             month - 0.5,
+                             descript,
+                             horizontalalignment='left',
+                             verticalalignment='center',
+                             size='small',
+                             color='white',
+                             bbox=dict(boxstyle='round', fc='black'))
+        except Exception as e:
+            print(f"No such file: {e}")
 
     plt.show()
 
