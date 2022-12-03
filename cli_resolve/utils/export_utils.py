@@ -4,6 +4,7 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import math
+import json
 
 
 def get_res_fieldnames(res_dict, start_date_str, end_date):
@@ -73,7 +74,7 @@ def convert_resolutions(filepath):
     df.to_csv(f"data/cleaned/{filename}", index=False)
 
 
-def generate_heatmap(filepath, notable_days={}):
+def generate_heatmap(filepath, notable_days=None):
     df = pd.read_csv(filepath)
 
     try:
@@ -121,87 +122,37 @@ def generate_heatmap(filepath, notable_days={}):
         nyr_map.set_yticklabels(nyr_map.get_yticklabels(), rotation=0)
         nyr_map.set_xticklabels(year_month_labs, fontdict={'horizontalalignment': 'left'}, rotation=0)
 
-    notable_days = {
-        "1/27/2022": "DCA <-> DFW",
-        "1/28/2022": "",
-        "1/29/2022": "",
-        "1/30/2022": "",
-        "1/31/2022": "",
-        "2/1/2022": "",
-        "2/2/2022": "",
-        "2/3/2022": "",
-        "2/4/2022": "",
-        "2/5/2022": "",
-        "2/6/2022": "",
-        "2/13/2022": "DCA <-> DFW",
-        "2/14/2022": "",
-        "2/15/2022": "",
-        "2/16/2022": "",
-        "2/17/2022": "",
-        "2/18/2022": "",
-        "2/19/2022": "",
-        "2/20/2022": "",
-        "2/21/2022": "",
-        "2/22/2022": "",
-        "2/23/2022": "",
-        "2/24/2022": "",
-        "2/25/2022": "",
-        "2/26/2022": "",
-        "2/27/2022": "",
-        "2/28/2022": "",
-        "3/1/2022": "",
-        "3/2/2022": "",
-        "3/3/2022": "",
-        "3/4/2022": "",
-        "3/5/2022": "",
-        "3/6/2022": "",
-        "3/13/2022": "Chicago Trip",
-        "3/14/2022": "",
-        "3/15/2022": "",
-        "3/16/2022": "",
-        "3/17/2022": "",
-        "3/18/2022": "",
-        "3/19/2022": "",
-        "3/20/2022": "",
-        "3/26/2022": "DCA <-> DFW",
-        "3/27/2022": "",
-        "3/28/2022": "",
-        "3/29/2022": "",
-        "6/4/2022": "Midwest Roadtrip",
-        "6/5/2022": "",
-        "6/6/2022": "",
-        "6/7/2022": "",
-        "6/8/2022": "",
-        "6/9/2022": "",
-        "6/10/2022": "",
-        "6/11/2022": "",
-        "6/12/2022": "",
-        "10/11/2022": "Acadia Trip",
-        "10/12/2022": "",
-        "10/13/2022": "",
-        "10/14/2022": "",
-        "10/15/2022": "",
-        "10/16/2022": "",
-    }
     # TODO: currently only works for within-year maps
     if notable_days:
-        for date, descript in notable_days.items():
-            date_list = date.split("/")
-            month = int(date_list[0])
-            day = int(date_list[1])
-            date_coords = (day - 1, month - 1)
-            rect = plt.Rectangle(date_coords, width=1, height=1, color="white", linewidth=0, fill=False, hatch='..',
-                                 alpha=0.6)
-            nyr_map.add_patch(rect)
-            nyr_map.text(day - 0.5,
-                         month - 0.5,
-                         descript,
-                         horizontalalignment='left',
-                         verticalalignment='center',
-                         size='small',
-                         color='white',
-                         # backgroundcolor='white',
-                         bbox=dict(boxstyle='round', fc='black'))
+        # Load from JSON file passed into parameter
+        try:
+            with open(f"data/{notable_days}.json", "r") as f:
+                notable_days = json.load(f)
+
+            for date, descript in notable_days.items():
+                date_list = date.split("/")
+                month = int(date_list[0])
+                day = int(date_list[1])
+                date_coords = (day - 1, month - 1)
+                rect = plt.Rectangle(date_coords,
+                                     width=1,
+                                     height=1,
+                                     color="white",
+                                     linewidth=0,
+                                     fill=False,
+                                     hatch='..',
+                                     alpha=0.6)
+                nyr_map.add_patch(rect)
+                nyr_map.text(day - 0.5,
+                             month - 0.5,
+                             descript,
+                             horizontalalignment='left',
+                             verticalalignment='center',
+                             size='small',
+                             color='white',
+                             bbox=dict(boxstyle='round', fc='black'))
+        except Exception as e:
+            print(f"No such file: {e}")
 
     plt.show()
 
