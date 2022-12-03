@@ -140,7 +140,10 @@ def generate_minimap(filename):
     j = 0
     for res in col_list:
         try:
-            df_map = df.pivot("Month", "Day", res)
+            try:
+                df_map = df.pivot("Month", "Day", res)
+            except ValueError:
+                df_map = df.pivot(columns=["Year", "Month"], index="Day", values=res)
             nyr_map = sns.heatmap(
                 df_map,
                 vmin=0,
@@ -149,7 +152,8 @@ def generate_minimap(filename):
                 square=True,
                 cbar=False,
                 ax=axes[i][j] if num_maps > 2 else axes[j]
-            ).set(
+            )
+            nyr_map.set(
                 title=f"{res}"
             )
             sns.despine(
