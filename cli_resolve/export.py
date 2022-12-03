@@ -94,3 +94,4 @@ def export_graph():
         convert_resolutions(exports_filepath)
         print("*** Generating heatmap")
     generate_heatmap(cleaned_filepath)
+

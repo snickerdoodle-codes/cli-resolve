@@ -7,7 +7,7 @@ from datetime import datetime
 from cli_resolve.utils.resolution_utils import booleanize_yes_no
 
 # INPUTS
-filename = "nyr19.csv"
+filename = "nyr22_partial.csv"
 
 # Read the CSV
 filepath = f"../data/cleaned/{filename}"
@@ -36,7 +36,7 @@ while curr_col <= data_end:
     print(f"*** Adding data from resolution={col_name}")
 
     # Check whether this resolution already exists in app data
-    exists = col_name in app_data
+    exists = col_name.lower() in app_data
     first_date = df["date"][0]
     last_date = df["date"][days - 1]
 
@@ -50,23 +50,23 @@ while curr_col <= data_end:
         else:
             if merge_data:
                 print(f"*** Merging res={col_name}")
-                res_id = col_name
+                res_id = col_name.lower()
                 is_binary = app_data[res_id]["is_binary"]
 
                 # Calculate res_creation_date (first date entry from current data OR res_creation_date of existing
                 # resolution, whichever is earlier)
                 first_date_dt = datetime.strptime(first_date, "%m/%d/%Y")
-                exist_creation_date = app_data[col_name]["res_creation_date"]
+                exist_creation_date = app_data[res_id]["res_creation_date"]
                 exist_creation_date_dt = datetime.strptime(exist_creation_date, "%m/%d/%Y")
                 res_creation_date = first_date if first_date_dt < exist_creation_date_dt else exist_creation_date
 
                 # Expiration is last date entry from current data OR res_expiration_date of existing resolution,
                 # whichever is later
                 last_date_dt = datetime.strptime(last_date, "%m/%d/%Y")
-                exist_expiration_date = app_data[col_name]["res_expiration_date"]
+                exist_expiration_date = app_data[res_id]["res_expiration_date"]
                 if exist_expiration_date is not None:
                     exist_expiration_date_dt = datetime.strptime(exist_expiration_date, "%m/%d/%Y")
-                    res_expiration_date = last_date if last_date_dt > exist_expiration_date_dt else exist_expiration_date_dt
+                    res_expiration_date = last_date if last_date_dt > exist_expiration_date_dt else exist_expiration_date
                 else:
                     res_expiration_date = exist_expiration_date
 
@@ -135,7 +135,7 @@ while curr_col <= data_end:
 
     while curr_day < days:
         datapoint = df.loc[[curr_day], col_name].values[0]
-        if not datapoint:  # binary and non-binary falsy value
+        if not datapoint or datapoint == "0" or datapoint == "0.0":  # binary and non-binary falsy value
             datapoint = False
         if is_binary:
             if datapoint:  # binary truthy value
