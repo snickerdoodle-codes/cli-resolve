@@ -1,4 +1,38 @@
+from datetime import datetime, date
 import json
+
+
+def get_date_string(prompt):
+    """
+    Generic function for handling prompts requiring date string user inputs
+    :param prompt:
+    :return:
+    """
+    while True:
+        try:
+            value = input(prompt)
+            if value.lower() == "today":
+                return date.today().strftime("%-m/%-d/%Y")
+            elif value.lower() == "never":
+                return None
+            else:
+                validate_date_string(value)
+                return value
+        except ValueError as e:
+            print(f"Invalid input: {e}")
+            continue
+
+
+def validate_date_string(date_string):
+    """
+    Validates date input strings to ensure that they are in 'MM/DD/YYYY' format
+    :param date_string:
+    :return:
+    """
+    try:
+        datetime.strptime(date_string, "%m/%d/%Y")
+    except ValueError:
+        raise ValueError("Date input should be in the form of 'MM/DD/YYYY'")
 
 
 def booleanize_yes_no(input_str):

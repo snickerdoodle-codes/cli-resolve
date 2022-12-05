@@ -10,12 +10,8 @@ def log_resolutions():
         print("You don't have any active resolutions!")
         go_home()
         return
-    today_or_backdate = input("Are you logging for today? ('Y' or 'MM/DD/YYYY' for backdate): ").upper()
-    if today_or_backdate == "Y":
-        log_date = date.today().strftime("%-m/%-d/%Y")
-    else:
-        # TODO: validate input
-        log_date = today_or_backdate
+
+    log_date = get_date_string("What is the date for this entry? ('today' or 'MM/DD/YYYY'): ")
     for res, val in active_res.items():
         if val['is_binary']:
             response, is_valid = booleanize_yes_no(input(f"- Did you `{val['res_descript']}`? (Y/N): "))
@@ -63,13 +59,8 @@ def add_resolution():
         res_descript = input("Describe this resolution: ")
         res_creation_date = today
         is_active = True
-        res_expiration_date = input(
-            "When does this resolution expire? ('MM/DD/YYYY' or 'N' for no expiration): ").upper()
-        if res_expiration_date == "N":
-            res_expiration_date = None
-        else:
-            # TODO: validate and clean input
-            pass
+        res_expiration_date = get_date_string("When does this resolution expire? ('MM/DD/YYYY' or 'never' for no "
+                                              "expiration): ")
         is_binary, is_valid = booleanize_yes_no(
             input("Is this resolution's outcome binary? For example, for the resolution to exercise, "
                   "a binary outcome is whether you exercised or did not exercise. "

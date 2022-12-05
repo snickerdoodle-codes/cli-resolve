@@ -4,7 +4,7 @@ import sys
 import json
 from datetime import datetime
 
-from cli_resolve.utils.resolution_utils import booleanize_yes_no
+from cli_resolve.utils.resolution_utils import booleanize_yes_no, get_date_string
 
 # INPUTS
 filename = "nyr22_partial.csv"
@@ -101,11 +101,8 @@ while curr_col <= data_end:
         if is_expired:
             res_expiration_date = last_date
         else:
-            res_expiration_date = input(
-                "When does this resolution expire? ('MM/DD/YYYY' or 'N' for no expiration): ").upper()
-            if res_expiration_date == "N":
-                res_expiration_date = None
-            # TODO: validate and clean input
+            res_expiration_date = get_date_string("When does this resolution expire? ('MM/DD/YYYY' or 'never' for no "
+                                                  "expiration): ")
 
         is_binary, is_valid = booleanize_yes_no(
             input("Is this resolution's outcome binary? For example, for the resolution to exercise, "
