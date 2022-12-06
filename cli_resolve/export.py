@@ -63,10 +63,14 @@ def export_graph():
     # Generate graph from existing CSV, or export a CSV first and then generate graph
     cleaned_filepath = f"data/cleaned/res_{fname_start}_{fname_end}.csv"
     exports_filepath = f"data/exports/res_{fname_start}_{fname_end}.csv"
+
     # TODO: add flag to force new export and conversion (otherwise data will be stale)
-    if os.path.exists(cleaned_filepath):
+    already_cleaned = os.path.exists(cleaned_filepath)
+    already_exported = os.path.exists(exports_filepath)
+
+    if already_cleaned:
         print("*** Generating heatmap from existing CSV")
-    elif os.path.exists(exports_filepath):
+    elif already_exported:
         print("*** Cleaning data")
         convert_resolutions(exports_filepath)
         print("*** Generating heatmap")

@@ -38,7 +38,6 @@ def check_data_against_range(data, start_date_str, end_date):
 
 
 def write_res_row(fieldnames, curr_data, fname_start, fname_end):
-    date_str = curr_data["date"]
     with open(f"data/exports/res_{fname_start}_{fname_end}.csv", "a", newline="") as f:
         w = csv.DictWriter(f, fieldnames=fieldnames)
         if f.tell() == 0:  # write header only if blank file
