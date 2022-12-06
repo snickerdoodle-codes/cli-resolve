@@ -2,7 +2,7 @@ import os
 from time import sleep
 
 
-def go_home(delay=2):
+def go_home_message(delay=2):
     """
     Takes the user back to the main menu after a showy message
     :return:

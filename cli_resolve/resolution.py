@@ -8,7 +8,7 @@ def log_resolutions():
     active_res = get_active_resolutions()
     if not active_res:
         print("You don't have any active resolutions!")
-        go_home()
+        go_home_message()
         return
 
     log_date = get_date_string_response("What is the date for this entry? ('today' or 'MM/DD/YYYY'): ")
@@ -33,7 +33,7 @@ def log_resolutions():
     with open("data/resolutions.json", "w") as f:
         json.dump(all_res_dict, f, indent=4)
     print(f"*** Saved logs for {log_date}!")
-    go_home()
+    go_home_message()
 
 
 def add_resolution():
@@ -89,7 +89,7 @@ def add_resolution():
             with open("data/resolutions.json", "w+") as f:
                 json.dump(all_res_dict, f, indent=4)
             print("*** Added new resolution!")
-            go_home()
+            go_home_message()
             return
         else:
             print("Okay, let's try this again.")
@@ -101,7 +101,8 @@ def toggle_active_resolutions():
 
     if len(all_res_dict) == 0:
         print("No resolutions found")
-        go_home()
+        go_home_message()
+        return
 
     while True:
         print("Printing resolutions and is_active status:")
