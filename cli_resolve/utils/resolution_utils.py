@@ -36,6 +36,12 @@ def validate_date_string(date_string):
 
 
 def get_boolean_response(prompt, instructions=None):
+    """
+    Takes the response to a Y/N question and outputs the corresponding boolean value if input is valid.
+    :param prompt:
+    :param instructions:
+    :return:
+    """
     while True:
         try:
             if instructions:
@@ -80,25 +86,6 @@ def add_detail_code(char):
     print(f"`{char}` is not defined yet, but we can add it now")
     new_code_descript = input(f"What activity does `{char}` stand for?: ")
     return {char: new_code_descript}
-
-
-def booleanize_yes_no(input_str):
-    """
-    Takes the response to a Y/N question and outputs the corresponding boolean value.
-    For invalid values, the input string is returned along with a flag indicating invalidity.
-    :param input_str:
-    :return:
-    """
-    if input_str.upper() == "Y":
-        booleanized = True
-        is_valid = True
-    elif input_str.upper() == "N":
-        booleanized = False
-        is_valid = True
-    else:
-        booleanized = input_str
-        is_valid = False
-    return booleanized, is_valid
 
 
 def get_all_resolutions():
