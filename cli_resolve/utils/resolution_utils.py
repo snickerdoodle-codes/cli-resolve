@@ -2,15 +2,24 @@ from datetime import datetime, date
 import json
 
 
-def get_date_string_response(prompt):
+def get_date_string_response(prompt, instructions=None, year_start=False, year_end=False):
     """
     Generic function for handling prompts requiring date string user inputs
     :param prompt:
+    :param instructions:
+    :param year_end:
+    :param year_start:
     :return:
     """
     while True:
         try:
+            if instructions:
+                print(f"INSTRUCTIONS: {instructions}\n")
             value = input(prompt)
+            if year_start:
+                value = f"1/1/{value}"
+            if year_end:
+                value = f"12/31/{value}"
             if value.lower() == "today":
                 return date.today().strftime("%-m/%-d/%Y")
             elif value.lower() == "never":
@@ -32,7 +41,7 @@ def validate_date_string(date_string):
     try:
         datetime.strptime(date_string, "%m/%d/%Y")
     except ValueError:
-        raise ValueError("Date input should be in the form of 'MM/DD/YYYY'")
+        raise ValueError(f"Invalid date={date_string}; date input should be in the form of 'MM/DD/YYYY'")
 
 
 def get_boolean_response(prompt, instructions=None):

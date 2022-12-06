@@ -7,6 +7,15 @@ import math
 import json
 
 
+def get_filename(date_str):
+    """
+    Takes MM/DD/YYYY date string and returns MM-DD-YYYY string to be used in filenames
+    :param date_str:
+    :return:
+    """
+    return "-".join(date_str.split("/"))
+
+
 def get_res_fieldnames(res_dict, start_date_str, end_date):
     res_fields = []
     for res_id, entry in res_dict.items():

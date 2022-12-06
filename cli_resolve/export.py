@@ -1,35 +1,26 @@
 import os
 
-from utils.resolution_utils import get_all_resolutions
+from utils.resolution_utils import get_all_resolutions, get_date_string_response, get_boolean_response
 from utils.export_utils import *
 
+INSTRUCTIONS = "Enter the start and end dates ('MM/DD/YYYY') for which you would like to make an export.\n" \
+                   "If you specify only the year, all data from that year will be included.\n" \
+                   "e.g. start_date='2020' and end_date='2021' exports all data from 1/1/2020 to 12/31/2021\n"
 
-def export_csv(start_date=None, end_date=None):
-    if start_date is None or end_date is None:
-        instructions = "Enter the start and end dates ('MM/DD/YYYY') for which you would like to make an export.\n" \
-                       "If you specify only the year, all data from that year will be included.\n" \
-                       "e.g. start_date='2020' and end_date='2021' exports all data from 1/1/2020 to 12/31/2021\n"
-        print(instructions)
-        start_date_str = input("start date: ")
-        end_date_str = input("end date: ")
-    else:
-        start_date_str = start_date
-        end_date_str = end_date
 
-    fname_start = "-".join(start_date_str.split("/"))
-    fname_end = "-".join(end_date_str.split("/"))
-    if len(start_date_str) == 4:
-        fname_start = start_date_str
-        start_date_str = f"1/1/{start_date_str}"
-    if len(end_date_str) == 4:
-        fname_end = end_date_str
-        end_date_str = f"12/31/{end_date_str}"
+def export_csv():
+    print(f"INSTRUCTIONS: {INSTRUCTIONS}")
+    start_date_str = get_date_string_response("start date: ", year_start=True)
+    end_date_str = get_date_string_response("end date: ", year_end=True)
+
+    fname_start = get_filename(start_date_str)
+    fname_end = get_filename(end_date_str)
 
     # Check whether there's already a CSV for the time range of interest
     if os.path.exists(f"data/exports/res_{fname_start}_{fname_end}.csv"):
-        override = input(f"There is already a CSV file for start={start_date_str} end={end_date_str}.\n"
-                         f"Save over existing file? ('Y' to continue, anything else to return to menu): ").upper()
-        if override != "Y":
+        print(f"There is already a CSV file for start={start_date_str} end={end_date_str}.")
+        override = get_boolean_response("Save over existing file? (Y/N): ")
+        if not override:
             return
 
     print(f"*** Exporting data: {start_date_str} - {end_date_str}")
@@ -52,7 +43,7 @@ def export_csv(start_date=None, end_date=None):
             try:
                 datapoint = {res: log_data[curr_date_str]}
                 print(f"*** Data found for resolution={res} on date={curr_date_str}!")
-            except KeyError as e:
+            except KeyError:
                 print(f"resolution={res} does not have data for date={curr_date_str}, recording as 0")
                 datapoint = {res: 0}
             curr_data.update(datapoint)
@@ -62,20 +53,12 @@ def export_csv(start_date=None, end_date=None):
 
 
 def export_graph():
-    # TODO: make this DRY
-    instructions = "Enter the start and end dates ('MM/DD/YYYY') for which you would like to make an export.\n" \
-                   "If you specify only the year, all data from that year will be included.\n" \
-                   "e.g. start_date='2020' and end_date='2021' exports all data from 1/1/2020 to 12/31/2021\n"
-    print(instructions)
-    start_date_str = input("start date: ")
-    end_date_str = input("end date: ")
+    print(f"INSTRUCTIONS: {INSTRUCTIONS}")
+    start_date_str = get_date_string_response("start date: ", year_start=True)
+    end_date_str = get_date_string_response("end date: ", year_end=True)
 
-    fname_start = "-".join(start_date_str.split("/"))
-    fname_end = "-".join(end_date_str.split("/"))
-    if len(start_date_str) == 4:
-        fname_start = start_date_str
-    if len(end_date_str) == 4:
-        fname_end = end_date_str
+    fname_start = get_filename(start_date_str)
+    fname_end = get_filename(end_date_str)
 
     # Generate graph from existing CSV, or export a CSV first and then generate graph
     cleaned_filepath = f"data/cleaned/res_{fname_start}_{fname_end}.csv"
@@ -95,4 +78,3 @@ def export_graph():
         print("*** Generating heatmap")
     generate_heatmap(cleaned_filepath, notable_days="trips")
     # generate_minimap(cleaned_filepath)
-
