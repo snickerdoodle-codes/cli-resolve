@@ -11,35 +11,20 @@ def log_resolutions():
         go_home()
         return
 
-    log_date = get_date_string("What is the date for this entry? ('today' or 'MM/DD/YYYY'): ")
+    log_date = get_date_string_response("What is the date for this entry? ('today' or 'MM/DD/YYYY'): ")
     for res, val in active_res.items():
         if val['is_binary']:
-            response, is_valid = booleanize_yes_no(input(f"- Did you `{val['res_descript']}`? (Y/N): "))
-            if is_valid:
-                val['data'][log_date] = response
-            else:
-                print(f"Invalid input: {response}")
+            prompt = f"- Did you `{val['res_descript']}`? (Y/N): "
+            response = get_boolean_response(prompt)
+            val['data'][log_date] = response
         else:
-            print(f"- Did you `{val['res_descript']}`?")
             codes = val["res_detail_codes"]
-            print_detail_codes(codes)
-            # TODO: validate input
-            response = input(f"Enter an existing or new detail code, a comma-separated list of existing detail codes,"
-                             f" or 'N' for no: ").upper()
-            if response == "N":
-                val['data'][log_date] = False
-            # Split response into list
-            else:
-                response_list = response.split(",")
-                # Check that each code is already a defined code
-                for char in response_list:
-                    if char not in codes:
-                        print(f"`{char}` is not defined yet, but we can add it now")
-                        new_code_descript = input(f"What activity does `{char}` stand for?: ")
-                        new_code = {char: new_code_descript}
-                        codes.update(new_code)
-                val['data'][log_date] = response
-    # TODO: preview new log
+            prompt = f"- Did you `{val['res_descript']}`? "
+            instructions = "Enter an existing or new detail code, a comma-separated list of existing detail codes, " \
+                           "or 'N' for no."
+            response = get_detail_code_response(prompt, instructions, codes)
+            val['data'][log_date] = response
+
     # Persist to file
     print("*** Saving new logs")
     with open("data/resolutions.json", "r") as f:
@@ -59,7 +44,7 @@ def add_resolution():
         res_descript = input("Describe this resolution: ")
         res_creation_date = today
         is_active = True
-        res_expiration_date = get_date_string("When does this resolution expire? ('MM/DD/YYYY' or 'never' for no "
+        res_expiration_date = get_date_string_response("When does this resolution expire? ('MM/DD/YYYY' or 'never' for no "
                                               "expiration): ")
         is_binary, is_valid = booleanize_yes_no(
             input("Is this resolution's outcome binary? For example, for the resolution to exercise, "

@@ -2,7 +2,7 @@ from datetime import datetime, date
 import json
 
 
-def get_date_string(prompt):
+def get_date_string_response(prompt):
     """
     Generic function for handling prompts requiring date string user inputs
     :param prompt:
@@ -33,6 +33,50 @@ def validate_date_string(date_string):
         datetime.strptime(date_string, "%m/%d/%Y")
     except ValueError:
         raise ValueError("Date input should be in the form of 'MM/DD/YYYY'")
+
+
+def get_boolean_response(prompt):
+    while True:
+        try:
+            value = input(prompt)
+            if value.upper() == "Y":
+                return True
+            elif value.upper() == "N":
+                return False
+            else:
+                raise ValueError("Input should be 'Y' or 'N'")
+        except ValueError as e:
+            print(f"Invalid input: {e}")
+            continue
+
+
+def get_detail_code_response(prompt, instructions, codes):
+    while True:
+        try:
+            print(f"INSTRUCTIONS: {instructions}\n")
+            print_detail_codes(codes)
+            value = input(prompt)
+
+            if value.upper() == "N":
+                return False
+
+            code_list = value.split(",")
+            # Check that each code is already a defined code, or add it now
+            for char in code_list:
+                if len(char) > 1:
+                    raise ValueError(f"Code should be of len=1; found len={len(char)} for code `{char}`")
+                if char not in codes:
+                    codes.update(add_detail_code(char))
+            return value
+        except ValueError as e:
+            print(f"Invalid input: {e}")
+            continue
+
+
+def add_detail_code(char):
+    print(f"`{char}` is not defined yet, but we can add it now")
+    new_code_descript = input(f"What activity does `{char}` stand for?: ")
+    return {char: new_code_descript}
 
 
 def booleanize_yes_no(input_str):
@@ -75,4 +119,4 @@ def print_detail_codes(detail_codes):
     if detail_codes:
         for key, val in detail_codes.items():
             codes += f"{key} - {val}\n"
-    return print(codes)
+    return print(f"Existing codes:\n{codes}")
