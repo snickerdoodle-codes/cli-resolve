@@ -7,6 +7,15 @@ import math
 import json
 
 
+def get_filename(date_str):
+    """
+    Takes MM/DD/YYYY date string and returns MM-DD-YYYY string to be used in filenames
+    :param date_str:
+    :return:
+    """
+    return "-".join(date_str.split("/"))
+
+
 def get_res_fieldnames(res_dict, start_date_str, end_date):
     res_fields = []
     for res_id, entry in res_dict.items():
@@ -29,7 +38,6 @@ def check_data_against_range(data, start_date_str, end_date):
 
 
 def write_res_row(fieldnames, curr_data, fname_start, fname_end):
-    date_str = curr_data["date"]
     with open(f"data/exports/res_{fname_start}_{fname_end}.csv", "a", newline="") as f:
         w = csv.DictWriter(f, fieldnames=fieldnames)
         if f.tell() == 0:  # write header only if blank file

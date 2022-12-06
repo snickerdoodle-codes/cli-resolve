@@ -8,42 +8,23 @@ def log_resolutions():
     active_res = get_active_resolutions()
     if not active_res:
         print("You don't have any active resolutions!")
-        go_home()
+        go_home_message()
         return
-    today_or_backdate = input("Are you logging for today? ('Y' or 'MM/DD/YYYY' for backdate): ").upper()
-    if today_or_backdate == "Y":
-        log_date = date.today().strftime("%-m/%-d/%Y")
-    else:
-        # TODO: validate input
-        log_date = today_or_backdate
+
+    log_date = get_date_string_response("What is the date for this entry? ('today' or 'MM/DD/YYYY'): ")
     for res, val in active_res.items():
         if val['is_binary']:
-            response, is_valid = booleanize_yes_no(input(f"- Did you `{val['res_descript']}`? (Y/N): "))
-            if is_valid:
-                val['data'][log_date] = response
-            else:
-                print(f"Invalid input: {response}")
+            prompt = f"- Did you `{val['res_descript']}`? (Y/N): "
+            response = get_boolean_response(prompt)
+            val['data'][log_date] = response
         else:
-            print(f"- Did you `{val['res_descript']}`?")
             codes = val["res_detail_codes"]
-            print_detail_codes(codes)
-            # TODO: validate input
-            response = input(f"Enter an existing or new detail code, a comma-separated list of existing detail codes,"
-                             f" or 'N' for no: ").upper()
-            if response == "N":
-                val['data'][log_date] = False
-            # Split response into list
-            else:
-                response_list = response.split(",")
-                # Check that each code is already a defined code
-                for char in response_list:
-                    if char not in codes:
-                        print(f"`{char}` is not defined yet, but we can add it now")
-                        new_code_descript = input(f"What activity does `{char}` stand for?: ")
-                        new_code = {char: new_code_descript}
-                        codes.update(new_code)
-                val['data'][log_date] = response
-    # TODO: preview new log
+            prompt = f"- Did you `{val['res_descript']}`? "
+            instructions = "Enter an existing or new detail code, a comma-separated list of existing detail codes, " \
+                           "or 'N' for no."
+            response = get_detail_code_response(prompt, instructions, codes)
+            val['data'][log_date] = response
+
     # Persist to file
     print("*** Saving new logs")
     with open("data/resolutions.json", "r") as f:
@@ -52,36 +33,41 @@ def log_resolutions():
     with open("data/resolutions.json", "w") as f:
         json.dump(all_res_dict, f, indent=4)
     print(f"*** Saved logs for {log_date}!")
-    go_home()
+    go_home_message()
 
 
 def add_resolution():
+    all_res_dict = get_all_resolutions()
     while True:
-        today = date.today()
-        res_id = input("Enter a short ID for this resolution in snake_case: ")
-        # TODO: check that res_id has not already been used
-        res_descript = input("Describe this resolution: ")
-        res_creation_date = today
-        is_active = True
-        res_expiration_date = input(
-            "When does this resolution expire? ('MM/DD/YYYY' or 'N' for no expiration): ").upper()
-        if res_expiration_date == "N":
-            res_expiration_date = None
-        else:
-            # TODO: validate and clean input
-            pass
-        is_binary, is_valid = booleanize_yes_no(
-            input("Is this resolution's outcome binary? For example, for the resolution to exercise, "
-                  "a binary outcome is whether you exercised or did not exercise. "
-                  "In contrast, a categorical outcome names the kind of exercise you did (e.g. "
-                  "run/bike/swim). (Y/N): "))
-        if not is_valid:
-            # TODO: Invalid input
-            print(f"Invalid input: {is_binary}")
-        if not is_binary:
-            print(
-                "You will be able to tell me what kind of activity you did when you log an entry for this resolution.")
-        res_detail_codes = {}
+        try:
+            res_id = input("Enter a short ID for this resolution in snake_case: ")
+            if res_id in all_res_dict:
+                print(f"`{res_id}` already exists")
+                continue
+            res_descript = input("Describe this resolution: ")
+            res_creation_date = date.today()
+            is_active = True
+            res_expiration_date = get_date_string_response(
+                "When does this resolution expire? ('MM/DD/YYYY' or 'never' for no "
+                "expiration): ")
+            is_binary = get_boolean_response(
+                prompt="Is this resolution's outcome binary? (Y/N): ",
+                instructions="Binary outcomes tell us whether or not you did something, while categorical outcomes "
+                             "tell us about the kind of thing you did.\n"
+                             "For example, for the resolution to exercise, "
+                             "a binary outcome is exercising, or not exercising. "
+                             "In contrast, a categorical outcome names the kind of exercise you did (e.g. "
+                             "run/bike/swim). "
+            )
+            if not is_binary:
+                print(
+                    "You will be able to tell me what kind of activity you did when you log an entry for this "
+                    "resolution."
+                )
+            res_detail_codes = {}
+        except ValueError as e:
+            print(f"Invalid input: {e}")
+            continue
 
         res_dict = {
             res_id: {
@@ -96,19 +82,18 @@ def add_resolution():
         }
 
         print(f"Preview: {res_dict}")
-        confirm = booleanize_yes_no(input("Does everything look right? (Y/N): "))
+        confirm = get_boolean_response("Does everything look right? (Y/N): ")
         if confirm:
             print(f"*** Adding new resolution={res_id}")
-            with open("data/resolutions.json", "r") as f:
-                all_res_dict = json.load(f)
-                all_res_dict.update(res_dict)
+            all_res_dict.update(res_dict)
             with open("data/resolutions.json", "w+") as f:
                 json.dump(all_res_dict, f, indent=4)
             print("*** Added new resolution!")
-            go_home()
+            go_home_message()
             return
         else:
-            print("Let's try this again")
+            print("Okay, let's try this again.")
+            continue
 
 
 def toggle_active_resolutions():
@@ -116,20 +101,16 @@ def toggle_active_resolutions():
 
     if len(all_res_dict) == 0:
         print("No resolutions found")
-        go_home()
+        go_home_message()
+        return
 
     while True:
-        print("Printing resolutions and is_active status:")
-        for key, val in all_res_dict.items():
-            print(f"* {key}: {val['is_active']}")
+        print_resolutions_and_status(all_res_dict)
         res_key = input("Which resolution would you like to toggle?: ")
-        if res_key == "m":
-            return
         try:
             all_res_dict[res_key]["is_active"] = not all_res_dict[res_key]["is_active"]
             with open("data/resolutions.json", "w") as f:
                 json.dump(all_res_dict, f, indent=4)
             print(f"*** Toggled active status of `{res_key}`!")
-
         except KeyError as e:
             print(f"No such resolution key={e}")

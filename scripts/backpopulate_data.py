@@ -4,7 +4,7 @@ import sys
 import json
 from datetime import datetime
 
-from cli_resolve.utils.resolution_utils import booleanize_yes_no
+from cli_resolve.utils.resolution_utils import get_boolean_response, get_date_string_response
 
 # INPUTS
 filename = "nyr22_partial.csv"
@@ -41,81 +41,65 @@ while curr_col <= data_end:
     last_date = df["date"][days - 1]
 
     if exists:
-        merge_data, is_valid = booleanize_yes_no(
-            input(f"res={col_name} already exists. Merge with existing data? (Y/N): ")
-        )
-        if not is_valid:
-            # TODO: handle invalid response
-            print(f"Invalid input: {merge_data}")
-        else:
-            if merge_data:
-                print(f"*** Merging res={col_name}")
-                res_id = col_name.lower()
-                is_binary = app_data[res_id]["is_binary"]
+        merge_data = get_boolean_response(f"res={col_name} already exists. Merge with existing data? (Y/N): ")
+        if merge_data:
+            print(f"*** Merging res={col_name}")
+            res_id = col_name.lower()
+            is_binary = app_data[res_id]["is_binary"]
 
-                # Calculate res_creation_date (first date entry from current data OR res_creation_date of existing
-                # resolution, whichever is earlier)
-                first_date_dt = datetime.strptime(first_date, "%m/%d/%Y")
-                exist_creation_date = app_data[res_id]["res_creation_date"]
-                exist_creation_date_dt = datetime.strptime(exist_creation_date, "%m/%d/%Y")
-                res_creation_date = first_date if first_date_dt < exist_creation_date_dt else exist_creation_date
+            # Calculate res_creation_date (first date entry from current data OR res_creation_date of existing
+            # resolution, whichever is earlier)
+            first_date_dt = datetime.strptime(first_date, "%m/%d/%Y")
+            exist_creation_date = app_data[res_id]["res_creation_date"]
+            exist_creation_date_dt = datetime.strptime(exist_creation_date, "%m/%d/%Y")
+            res_creation_date = first_date if first_date_dt < exist_creation_date_dt else exist_creation_date
 
-                # Expiration is last date entry from current data OR res_expiration_date of existing resolution,
-                # whichever is later
-                last_date_dt = datetime.strptime(last_date, "%m/%d/%Y")
-                exist_expiration_date = app_data[res_id]["res_expiration_date"]
-                if exist_expiration_date is not None:
-                    exist_expiration_date_dt = datetime.strptime(exist_expiration_date, "%m/%d/%Y")
-                    res_expiration_date = last_date if last_date_dt > exist_expiration_date_dt else exist_expiration_date
-                else:
-                    res_expiration_date = exist_expiration_date
+            # Expiration is last date entry from current data OR res_expiration_date of existing resolution,
+            # whichever is later
+            last_date_dt = datetime.strptime(last_date, "%m/%d/%Y")
+            exist_expiration_date = app_data[res_id]["res_expiration_date"]
+            if exist_expiration_date is not None:
+                exist_expiration_date_dt = datetime.strptime(exist_expiration_date, "%m/%d/%Y")
+                res_expiration_date = last_date if last_date_dt > exist_expiration_date_dt else exist_expiration_date
+            else:
+                res_expiration_date = exist_expiration_date
 
-                app_data[res_id].update(
-                    {
-                        "res_creation_date": res_creation_date,
-                        "res_expiration_date": res_expiration_date,
-                    }
-                )
+            app_data[res_id].update(
+                {
+                    "res_creation_date": res_creation_date,
+                    "res_expiration_date": res_expiration_date,
+                }
+            )
 
     # New resolution without precedent
     if (not exists) or (not merge_data):
         if exists:
             res_id = input(f"Let's give this resolution a new res_id to differentiate it from {col_name}: ")
         else:
-            keep_name, is_valid = booleanize_yes_no(input(f"Want to keep the res_id `{col_name}`? (Y/N): "))
-            if not is_valid:
-                # TODO: handle invalid response
-                print(f"Invalid input: {keep_name}")
-            elif keep_name:
+            keep_name = get_boolean_response(f"Want to keep the res_id `{col_name}`? (Y/N): ")
+            if keep_name:
                 res_id = col_name
             else:
                 res_id = input("Let's give this resolution a new res_id: ")
         print(f"*** Creating a new resolution res={res_id}")
         res_descript = input("Provide a short description for this resolution: ")
         res_creation_date = df.loc[[0], "date"].values[0]  # first date entry from current data
-        is_active, is_valid = booleanize_yes_no(input("Is this an active resolution? (Y/N): "))
-        if not is_valid:
-            # TODO: handle invalid input
-            pass
-        is_expired = booleanize_yes_no(input(f"Did this resolution expire on {last_date}? (Y/N): "))
+        is_active = get_boolean_response("Is this an active resolution? (Y/N): ")
+        is_expired = get_boolean_response(f"Did this resolution expire on {last_date}? (Y/N): ")
         if is_expired:
             res_expiration_date = last_date
         else:
-            res_expiration_date = input(
-                "When does this resolution expire? ('MM/DD/YYYY' or 'N' for no expiration): ").upper()
-            if res_expiration_date == "N":
-                res_expiration_date = None
-            # TODO: validate and clean input
-
-        is_binary, is_valid = booleanize_yes_no(
-            input("Is this resolution's outcome binary? For example, for the resolution to exercise, "
-                  "a binary outcome is whether you exercised or did not exercise. "
-                  "In contrast, a categorical outcome names the kind of exercise you did (e.g. "
-                  "run/bike/swim). (Y/N): ")
+            res_expiration_date = get_date_string_response("When does this resolution expire? ('MM/DD/YYYY' or "
+                                                           "'never' for no expiration): ")
+        is_binary = get_boolean_response(
+            prompt="Is this resolution's outcome binary? (Y/N): ",
+            instructions="Binary outcomes tell us whether or not you did something, while categorical outcomes "
+                         "tell us about the kind of thing you did.\n"
+                         "For example, for the resolution to exercise, "
+                         "a binary outcome is exercising, or not exercising. "
+                         "In contrast, a categorical outcome names the kind of exercise you did (e.g. "
+                         "run/bike/swim). "
         )
-        if not is_valid:
-            # TODO: handle invalid response
-            print(f"Invalid input: {merge_data}")
 
         res = {
             "res_descript": res_descript,
@@ -146,11 +130,8 @@ while curr_col <= data_end:
                 datapoint = code_translator.get(datapoint, datapoint)
                 # Add to detail codes if seeing for first time
                 if datapoint not in detail_codes:
-                    keep_code, is_valid = booleanize_yes_no(input(f"Keep the code `{datapoint}`? (Y/N): "))
-                    if not is_valid:
-                        # TODO: handle invalid response
-                        print(f"Invalid input: {keep_code}")
-                    elif keep_code:  # add new code to res_detail_codes without changing datapoint
+                    keep_code = get_boolean_response(f"Keep the code `{datapoint}`? (Y/N): ")
+                    if keep_code:  # add new code to res_detail_codes without changing datapoint
                         descript = input(f"What activity does `{datapoint}` stand for?: ")
                         detail_codes[datapoint] = descript
                     else:  # add new code to res_detail_codes and change datapoint

@@ -35,6 +35,7 @@ class Menu:
         print(f"Welcome to ✨ Resolve ✨\n")
         for key, val in self.options.items():
             print(f"{key} - {val['text']}")
+        print()
         print("Enter 'q' to quit\n")
         command = input("What would you like to do? (enter #): ")
         print()
@@ -45,3 +46,4 @@ class Menu:
         except KeyError as e:
             print(f"{command} is not a valid command")
             sleep(1)
+
