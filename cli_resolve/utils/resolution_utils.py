@@ -110,3 +110,9 @@ def print_detail_codes(detail_codes):
         for key, val in detail_codes.items():
             codes += f"{key} - {val}\n"
     return print(f"Existing codes:\n{codes}")
+
+
+def print_resolutions_and_status(resolutions):
+    print("Printing resolutions and is_active status:")
+    for key, val in resolutions.items():
+        print(f"* {key}: {val['is_active']}")

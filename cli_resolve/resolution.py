@@ -105,17 +105,12 @@ def toggle_active_resolutions():
         return
 
     while True:
-        print("Printing resolutions and is_active status:")
-        for key, val in all_res_dict.items():
-            print(f"* {key}: {val['is_active']}")
+        print_resolutions_and_status(all_res_dict)
         res_key = input("Which resolution would you like to toggle?: ")
-        if res_key == "m":
-            return
         try:
             all_res_dict[res_key]["is_active"] = not all_res_dict[res_key]["is_active"]
             with open("data/resolutions.json", "w") as f:
                 json.dump(all_res_dict, f, indent=4)
             print(f"*** Toggled active status of `{res_key}`!")
-
         except KeyError as e:
             print(f"No such resolution key={e}")
