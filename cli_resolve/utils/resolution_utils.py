@@ -35,9 +35,11 @@ def validate_date_string(date_string):
         raise ValueError("Date input should be in the form of 'MM/DD/YYYY'")
 
 
-def get_boolean_response(prompt):
+def get_boolean_response(prompt, instructions=None):
     while True:
         try:
+            if instructions:
+                print(f"INSTRUCTIONS: {instructions}\n")
             value = input(prompt)
             if value.upper() == "Y":
                 return True
@@ -50,11 +52,11 @@ def get_boolean_response(prompt):
             continue
 
 
-def get_detail_code_response(prompt, instructions, codes):
+def get_detail_code_response(prompt, instructions, existing_codes):
     while True:
         try:
             print(f"INSTRUCTIONS: {instructions}\n")
-            print_detail_codes(codes)
+            print_detail_codes(existing_codes)
             value = input(prompt)
 
             if value.upper() == "N":
@@ -63,10 +65,11 @@ def get_detail_code_response(prompt, instructions, codes):
             code_list = value.split(",")
             # Check that each code is already a defined code, or add it now
             for char in code_list:
+                code = char.upper()
                 if len(char) > 1:
                     raise ValueError(f"Code should be of len=1; found len={len(char)} for code `{char}`")
-                if char not in codes:
-                    codes.update(add_detail_code(char))
+                if code not in existing_codes:
+                    existing_codes.update(add_detail_code(code))
             return value
         except ValueError as e:
             print(f"Invalid input: {e}")
