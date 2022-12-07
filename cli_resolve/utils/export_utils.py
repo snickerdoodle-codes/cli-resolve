@@ -45,10 +45,14 @@ def write_res_row(fieldnames, curr_data, fname_start, fname_end):
         w.writerow(curr_data)
 
 
-def get_years(start_date_str, end_date_str):
+def get_years_list(start_date_str, end_date_str):
     start_yr = int(start_date_str.split("/")[2])
     end_yr = int(end_date_str.split("/")[2])
-    return end_yr - start_yr + 1
+
+    years_list = []
+    for yr in range(start_yr, end_yr + 1):
+        years_list.append(yr)
+    return years_list
 
 
 def clean_for_graphing(filepath):

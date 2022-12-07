@@ -6,10 +6,11 @@ import seaborn as sns
 from matplotlib import pyplot as plt
 
 
-def generate_heatmap(filepath, years, notable_days=None):
+def generate_heatmap(filepath, years_list, notable_days=None):
     df = pd.read_csv(filepath)
+    num_years = len(years_list)
 
-    if years == 1:
+    if num_years == 1:
         # Date range within single year
         print("*** Generating heatmap")
         plt.rcParams["figure.figsize"] = (12, 8)
@@ -33,7 +34,7 @@ def generate_heatmap(filepath, years, notable_days=None):
         # Date range spanning multiple years
         print("*** Generating multi-year heatmap")
         inches_per_year = 5
-        graph_height = inches_per_year * years
+        graph_height = inches_per_year * num_years
         plt.rcParams["figure.figsize"] = (12, graph_height)
 
         df_map = df.pivot(index=["Year", "Month"], columns="Day", values="Resolutions Met")
@@ -52,6 +53,8 @@ def generate_heatmap(filepath, years, notable_days=None):
         nyr_map.set(
             title=f"{df['date'][0]} - {df['date'][len(df['date']) - 1]}"
         )
+
+        # Generate special tick labels that display the year for only the first month of that year
         start_year = df["Year"][0]
         end_year = df["Year"][len(df["Year"]) - 1]
         start_month = 1
@@ -65,8 +68,6 @@ def generate_heatmap(filepath, years, notable_days=None):
                     year_month_labs.append(month)
         nyr_map.set_xticklabels(nyr_map.get_xticklabels(), rotation=0)
         nyr_map.set_yticklabels(year_month_labs, rotation=0)
-        print("*** Saving to data/exports folder")
-        plt.savefig("data/exports/temp_graph.pdf", orientation='portrait')
 
     # TODO: currently only works for within-year maps
     if notable_days:
@@ -79,7 +80,14 @@ def generate_heatmap(filepath, years, notable_days=None):
                 date_list = date.split("/")
                 month = int(date_list[0])
                 day = int(date_list[1])
-                date_coords = (day - 1, month - 1)
+                year = int(date_list[2])
+                if num_years == 1:
+                    date_coords = (day - 1, month - 1)
+                else:
+                    months_in_year = 12
+                    year_idx = years_list.index(year)
+                    year_month = (year_idx * months_in_year) + month
+                    date_coords = (day - 1, year_month - 1)
                 rect = plt.Rectangle(date_coords,
                                      width=1,
                                      height=1,
@@ -90,7 +98,7 @@ def generate_heatmap(filepath, years, notable_days=None):
                                      alpha=0.6)
                 nyr_map.add_patch(rect)
                 nyr_map.text(day - 0.5,
-                             month - 0.5,
+                             month - 0.5 if num_years == 1 else year_month - 0.5,
                              descript,
                              horizontalalignment='left',
                              verticalalignment='center',
@@ -100,6 +108,8 @@ def generate_heatmap(filepath, years, notable_days=None):
         except Exception as e:
             print(f"No such file: {e}")
 
+    print("*** Saving to data/exports folder")
+    plt.savefig("data/exports/temp_graph.pdf", orientation='portrait')
     plt.show()
 
 

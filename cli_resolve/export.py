@@ -60,7 +60,7 @@ def export_graph():
     print(f"INSTRUCTIONS: {INSTRUCTIONS}")
     start_date_str = get_date_string_response("start date: ", year_start=True)
     end_date_str = get_date_string_response("end date: ", year_end=True)
-    years = get_years(start_date_str, end_date_str)
+    years_list = get_years_list(start_date_str, end_date_str)
 
     display_events = get_boolean_response("Do you want event data overlaid on this graph? (Y/N): ")
     if display_events:
@@ -82,8 +82,8 @@ def export_graph():
         regenerate = get_boolean_response(f"Clean data for this graph last generated {last_generated_ts}. "
                                           f"Do you want to rerun? (Y/N): ")
         if not regenerate:
-            generate_heatmap(cleaned_filepath, years=years, notable_days=event_type)
+            generate_heatmap(cleaned_filepath, years_list=years_list, notable_days=event_type)
     if not already_cleaned or regenerate:
         export_csv(start_date_str, end_date_str)
         clean_for_graphing(exports_filepath)
-        generate_heatmap(cleaned_filepath, years=years, notable_days=event_type)
+        generate_heatmap(cleaned_filepath, years_list=years_list, notable_days=event_type)
