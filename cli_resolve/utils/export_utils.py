@@ -37,15 +37,20 @@ def check_data_against_range(data, start_date_str, end_date):
     return False
 
 
+def write_new_csv_with_header(fieldnames, fname_start, fname_end):
+    with open(f"data/exports/res_{fname_start}_{fname_end}.csv", "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=fieldnames)
+        w.writeheader()
+
+
 def write_res_row(fieldnames, curr_data, fname_start, fname_end):
     with open(f"data/exports/res_{fname_start}_{fname_end}.csv", "a", newline="") as f:
         w = csv.DictWriter(f, fieldnames=fieldnames)
-        if f.tell() == 0:  # write header only if blank file
-            w.writeheader()
         w.writerow(curr_data)
 
 
-def convert_resolutions(filepath):
+def clean_for_graphing(filepath):
+    print("*** Cleaning data")
     filename = filepath.split("data/exports/")[1]
     df = pd.read_csv(filepath)
     data_start = 1
@@ -83,6 +88,7 @@ def convert_resolutions(filepath):
 
 
 def generate_heatmap(filepath, notable_days=None):
+    print("*** Generating heatmap")
     df = pd.read_csv(filepath)
 
     try:
