@@ -6,13 +6,14 @@ import seaborn as sns
 from matplotlib import pyplot as plt
 
 
-def generate_heatmap(filepath, notable_days=None):
-    print("*** Generating heatmap")
+def generate_heatmap(filepath, years, notable_days=None):
     df = pd.read_csv(filepath)
-    plt.rcParams["figure.figsize"] = (12, 8)
 
-    try:
+    if years == 1:
         # Date range within single year
+        print("*** Generating heatmap")
+        plt.rcParams["figure.figsize"] = (12, 8)
+
         df_map = df.pivot("Month", "Day", "Resolutions Met")
         nyr_map = sns.heatmap(
             df_map,
@@ -28,14 +29,23 @@ def generate_heatmap(filepath, notable_days=None):
             title=f"{df['date'][0]} - {df['date'][len(df['date']) - 1]}"
         )
         plt.xticks(rotation=0)
-    except ValueError:
+    else:
         # Date range spanning multiple years
-        df_map = df.pivot(columns=["Year", "Month"], index="Day", values="Resolutions Met")
+        print("*** Generating multi-year heatmap")
+        inches_per_year = 5
+        graph_height = inches_per_year * years
+        plt.rcParams["figure.figsize"] = (12, graph_height)
+
+        df_map = df.pivot(index=["Year", "Month"], columns="Day", values="Resolutions Met")
         nyr_map = sns.heatmap(
             df_map,
             cmap="inferno",
             square=True,
-            cbar_kws={'orientation': 'vertical'},
+            cbar_kws={
+                'orientation': 'horizontal',
+                'fraction': 0.04,
+                'pad': 0.04
+            },
             xticklabels=True,
             yticklabels=True,
         )
@@ -50,11 +60,13 @@ def generate_heatmap(filepath, notable_days=None):
         for year in range(start_year, end_year + 1):
             for month in range(start_month, end_month + 1):
                 if month == 1:
-                    year_month_labs.append(f"{month}\n{year}")
+                    year_month_labs.append(f"{year} - {month}")
                 else:
                     year_month_labs.append(month)
-        nyr_map.set_yticklabels(nyr_map.get_yticklabels(), rotation=0)
-        nyr_map.set_xticklabels(year_month_labs, fontdict={'horizontalalignment': 'left'}, rotation=0)
+        nyr_map.set_xticklabels(nyr_map.get_xticklabels(), rotation=0)
+        nyr_map.set_yticklabels(year_month_labs, rotation=0)
+        print("*** Saving to data/exports folder")
+        plt.savefig("data/exports/temp_graph.pdf", orientation='portrait')
 
     # TODO: currently only works for within-year maps
     if notable_days:
@@ -89,7 +101,6 @@ def generate_heatmap(filepath, notable_days=None):
             print(f"No such file: {e}")
 
     plt.show()
-
 
 
 def generate_minimap(filename):

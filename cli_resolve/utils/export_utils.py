@@ -45,6 +45,12 @@ def write_res_row(fieldnames, curr_data, fname_start, fname_end):
         w.writerow(curr_data)
 
 
+def get_years(start_date_str, end_date_str):
+    start_yr = int(start_date_str.split("/")[2])
+    end_yr = int(end_date_str.split("/")[2])
+    return end_yr - start_yr + 1
+
+
 def clean_for_graphing(filepath):
     print("*** Cleaning data")
     filename = filepath.split("data/exports/")[1]
