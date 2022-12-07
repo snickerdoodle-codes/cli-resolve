@@ -2,16 +2,19 @@ import os
 
 from utils.resolution_utils import get_all_resolutions, get_date_string_response, get_boolean_response
 from utils.export_utils import *
+from utils.graph_utils import *
 
 INSTRUCTIONS = "Enter the start and end dates ('MM/DD/YYYY') for which you would like to make an export.\n" \
-                   "If you specify only the year, all data from that year will be included.\n" \
-                   "e.g. start_date='2020' and end_date='2021' exports all data from 1/1/2020 to 12/31/2021\n"
+               "If you specify only the year, all data from that year will be included.\n" \
+               "e.g. start_date='2020' and end_date='2021' exports all data from 1/1/2020 to 12/31/2021\n"
 
 
-def export_csv():
-    print(f"INSTRUCTIONS: {INSTRUCTIONS}")
-    start_date_str = get_date_string_response("start date: ", year_start=True)
-    end_date_str = get_date_string_response("end date: ", year_end=True)
+def export_csv(start_date_str=None, end_date_str=None):
+    print("*** Exporting CSV")
+    if not start_date_str or not end_date_str:
+        print(f"INSTRUCTIONS: {INSTRUCTIONS}")
+        start_date_str = get_date_string_response("start date: ", year_start=True)
+        end_date_str = get_date_string_response("end date: ", year_end=True)
 
     fname_start = get_filename(start_date_str)
     fname_end = get_filename(end_date_str)
@@ -36,6 +39,7 @@ def export_csv():
     res_fields = get_res_fieldnames(all_res_dict, start_date_str, end_date)
     fieldnames = fieldnames + res_fields
 
+    write_new_csv_with_header(fieldnames, fname_start, fname_end)
     while curr_date <= end_date:
         curr_data = {"date": curr_date_str}
         for res in res_fields:
@@ -56,6 +60,13 @@ def export_graph():
     print(f"INSTRUCTIONS: {INSTRUCTIONS}")
     start_date_str = get_date_string_response("start date: ", year_start=True)
     end_date_str = get_date_string_response("end date: ", year_end=True)
+    years_list = get_years_list(start_date_str, end_date_str)
+
+    display_events = get_boolean_response("Do you want event data overlaid on this graph? (Y/N): ")
+    if display_events:
+        event_type = input("What type of events? ")
+    else:
+        event_type = None
 
     fname_start = get_filename(start_date_str)
     fname_end = get_filename(end_date_str)
@@ -64,21 +75,15 @@ def export_graph():
     cleaned_filepath = f"data/cleaned/res_{fname_start}_{fname_end}.csv"
     exports_filepath = f"data/exports/res_{fname_start}_{fname_end}.csv"
 
-    # TODO: add flag to force new export and conversion (otherwise data will be stale)
     already_cleaned = os.path.exists(cleaned_filepath)
-    already_exported = os.path.exists(exports_filepath)
 
     if already_cleaned:
-        print("*** Generating heatmap from existing CSV")
-    elif already_exported:
-        print("*** Cleaning data")
-        convert_resolutions(exports_filepath)
-        print("*** Generating heatmap")
-    else:
-        print("*** Exporting CSV")
+        last_generated_ts = datetime.fromtimestamp(os.path.getmtime(cleaned_filepath))
+        regenerate = get_boolean_response(f"Clean data for this graph last generated {last_generated_ts}. "
+                                          f"Do you want to rerun? (Y/N): ")
+        if not regenerate:
+            generate_heatmap(cleaned_filepath, years_list=years_list, notable_days=event_type)
+    if not already_cleaned or regenerate:
         export_csv(start_date_str, end_date_str)
-        print("*** Cleaning data")
-        convert_resolutions(exports_filepath)
-        print("*** Generating heatmap")
-    generate_heatmap(cleaned_filepath, notable_days="trips")
-    # generate_minimap(cleaned_filepath)
+        clean_for_graphing(exports_filepath)
+        generate_heatmap(cleaned_filepath, years_list=years_list, notable_days=event_type)
