@@ -30,6 +30,7 @@ def generate_heatmap(filepath, years_list, notable_days=None):
             title=f"{df['date'][0]} - {df['date'][len(df['date']) - 1]}"
         )
         plt.xticks(rotation=0)
+        plt.yticks(rotation=0)
     else:
         # Date range spanning multiple years
         print("*** Generating multi-year heatmap")
@@ -69,7 +70,6 @@ def generate_heatmap(filepath, years_list, notable_days=None):
         nyr_map.set_xticklabels(nyr_map.get_xticklabels(), rotation=0)
         nyr_map.set_yticklabels(year_month_labs, rotation=0)
 
-    # TODO: currently only works for within-year maps
     if notable_days:
         # Load from JSON file passed into parameter
         try:
