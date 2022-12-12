@@ -67,6 +67,7 @@ def export_graph():
         event_type = input("What type of events? ")
     else:
         event_type = None
+    export_minimaps = get_boolean_response("Do you want minimaps for select resolutions? (Y/N): ")
 
     fname_start = get_filename(start_date_str)
     fname_end = get_filename(end_date_str)
@@ -83,7 +84,11 @@ def export_graph():
                                           f"Do you want to rerun? (Y/N): ")
         if not regenerate:
             generate_heatmap(cleaned_filepath, years_list=years_list, notable_days=event_type)
+            if export_minimaps:
+                generate_minimaps(cleaned_filepath)
     if not already_cleaned or regenerate:
         export_csv(start_date_str, end_date_str)
         clean_for_graphing(exports_filepath)
         generate_heatmap(cleaned_filepath, years_list=years_list, notable_days=event_type)
+        if export_minimaps:
+            generate_minimaps(cleaned_filepath)

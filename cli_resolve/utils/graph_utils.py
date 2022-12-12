@@ -113,7 +113,7 @@ def generate_heatmap(filepath, years_list, notable_days=None):
     plt.show()
 
 
-def generate_minimap(filename):
+def generate_minimaps(filename):
     df = pd.read_csv(filename)
     pd.set_option('display.max_columns', None)
     print(f"Preview of uploaded dataset:\n{df.head()}\n")
