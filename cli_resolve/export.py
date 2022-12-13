@@ -1,4 +1,5 @@
 import os
+from matplotlib import pyplot as plt
 
 from utils.resolution_utils import get_all_resolutions, get_date_string_response, get_boolean_response
 from utils.export_utils import *
@@ -86,9 +87,11 @@ def export_graph():
             generate_heatmap(cleaned_filepath, years_list=years_list, notable_days=event_type)
             if export_minimaps:
                 generate_minimaps(cleaned_filepath, years_list=years_list)
+            plt.show()
     if not already_cleaned or regenerate:
         export_csv(start_date_str, end_date_str)
         clean_for_graphing(exports_filepath)
         generate_heatmap(cleaned_filepath, years_list=years_list, notable_days=event_type)
         if export_minimaps:
             generate_minimaps(cleaned_filepath, years_list=years_list)
+        plt.show()

@@ -110,7 +110,7 @@ def generate_heatmap(filepath, years_list, notable_days=None):
 
     print("*** Saving to data/exports folder")
     plt.savefig("data/exports/temp_graph.pdf", orientation='portrait')
-    plt.show()
+    # plt.show()
 
 
 def generate_minimaps(filename, years_list):
@@ -121,7 +121,9 @@ def generate_minimaps(filename, years_list):
     print(f"Preview of uploaded dataset:\n{df.head()}\n")
 
     cols = input("Enter a comma-separated list of columns to create minimaps from (e.g. exercise,skincare): ")
+    cols = "".join(cols.split())  # remove whitespace
     col_list = cols.split(",")
+    col_list = [x for x in col_list if x]  # remove empty elements
 
     # Calculate the smallest squarish grid that will hold all plots
     num_maps = len(col_list)
@@ -133,11 +135,13 @@ def generate_minimaps(filename, years_list):
         else:
             break
 
+    inches_per_col = 4
+    graph_width = inches_per_col * num_cols
+    plt.rcParams["figure.figsize"] = (graph_width, 8)
     fig, axes = plt.subplots(nrows=num_rows,
                              ncols=num_cols,
                              sharex=True,
-                             sharey=True,
-                             figsize=(8, 8))
+                             sharey=True)
     i = 0
     j = 0
     for res in col_list:
@@ -160,9 +164,16 @@ def generate_minimaps(filename, years_list):
                 title=f"{res}",
                 xlabel="",
                 ylabel="",
-                yticks=[],
-                xticks=[],
+                # yticks=[],
+                # xticks=[],
             )
+            days_in_week = 7
+            xbins = days_in_week
+            ybins = num_years
+            nyr_map.set_xticklabels(nyr_map.get_xticklabels(), rotation=0)
+            nyr_map.locator_params(axis='x', nbins=xbins)
+            nyr_map.locator_params(axis='y', nbins=ybins)
+
             sns.despine(
                 top=False,
                 right=False,
@@ -202,5 +213,5 @@ def generate_minimaps(filename, years_list):
     plt.ylabel("Year-Month")
 
     print("*** Saving to data/exports folder")
-    plt.savefig("data/exports/temp_minimaps.pdf", orientation='landscape')
-    plt.show()
+    plt.savefig("data/exports/temp_minimaps.pdf", dpi=300)
+    # plt.show()
