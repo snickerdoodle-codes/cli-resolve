@@ -113,8 +113,10 @@ def generate_heatmap(filepath, years_list, notable_days=None):
     plt.show()
 
 
-def generate_minimaps(filename):
+def generate_minimaps(filename, years_list):
     df = pd.read_csv(filename)
+    num_years = len(years_list)
+
     pd.set_option('display.max_columns', None)
     print(f"Preview of uploaded dataset:\n{df.head()}\n")
 
@@ -131,7 +133,11 @@ def generate_minimaps(filename):
         else:
             break
 
-    fig, axes = plt.subplots(nrows=num_rows, ncols=num_cols)
+    fig, axes = plt.subplots(nrows=num_rows,
+                             ncols=num_cols,
+                             sharex=True,
+                             sharey=True,
+                             figsize=(8, 8))
     i = 0
     j = 0
     for res in col_list:
@@ -139,7 +145,8 @@ def generate_minimaps(filename):
             try:
                 df_map = df.pivot("Month", "Day", res)
             except ValueError:
-                df_map = df.pivot(columns=["Year", "Month"], index="Day", values=res)
+                df_map = df.pivot(index=["Year", "Month"], columns="Day", values=res)
+
             nyr_map = sns.heatmap(
                 df_map,
                 vmin=0,
@@ -150,7 +157,11 @@ def generate_minimaps(filename):
                 ax=axes[i][j] if num_maps > 2 else axes[j]
             )
             nyr_map.set(
-                title=f"{res}"
+                title=f"{res}",
+                xlabel="",
+                ylabel="",
+                yticks=[],
+                xticks=[],
             )
             sns.despine(
                 top=False,
@@ -181,5 +192,15 @@ def generate_minimaps(filename):
                 j = 0
                 i += 1
 
-    fig.subplots_adjust(hspace=0)
+    fig.subplots_adjust(hspace=0, wspace=0)
+
+    # Add background axis with hidden frame
+    fig.add_subplot(111, frameon=False)
+    # Hide tick and tick label of background axis
+    plt.tick_params(labelcolor='none', which='both', top=False, bottom=False, left=False, right=False)
+    plt.xlabel("Day")
+    plt.ylabel("Year-Month")
+
+    print("*** Saving to data/exports folder")
+    plt.savefig("data/exports/temp_minimaps.pdf", orientation='landscape')
     plt.show()

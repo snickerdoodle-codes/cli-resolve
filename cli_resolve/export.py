@@ -85,10 +85,10 @@ def export_graph():
         if not regenerate:
             generate_heatmap(cleaned_filepath, years_list=years_list, notable_days=event_type)
             if export_minimaps:
-                generate_minimaps(cleaned_filepath)
+                generate_minimaps(cleaned_filepath, years_list=years_list)
     if not already_cleaned or regenerate:
         export_csv(start_date_str, end_date_str)
         clean_for_graphing(exports_filepath)
         generate_heatmap(cleaned_filepath, years_list=years_list, notable_days=event_type)
         if export_minimaps:
-            generate_minimaps(cleaned_filepath)
+            generate_minimaps(cleaned_filepath, years_list=years_list)
