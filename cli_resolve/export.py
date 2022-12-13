@@ -1,5 +1,4 @@
 import os
-from matplotlib import pyplot as plt
 
 from utils.resolution_utils import get_all_resolutions, get_date_string_response, get_boolean_response
 from utils.export_utils import *
