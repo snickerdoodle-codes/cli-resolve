@@ -71,10 +71,15 @@ def clean_for_graphing(filepath):
 
     # Replace falsy values with 0's, otherwise the boolean conversion will return True for "0" and "0.0"
     df.fillna(0, inplace=True)
-    df = df.replace('0', 0)
-    df = df.replace('0.0', 0)
-    df = df.replace('False', 0)
-    df = df.replace('True', 1)
+    clean_binary_dict = {
+        '0': 0,
+        '0.0': 0,
+        'False': 0,
+        False: 0,
+        'True': 1,
+        True: 1,
+    }
+    df.replace(clean_binary_dict, inplace=True)
 
     # Create new column that sums up total resolutions met per day
     resolution_bools = df.iloc[:, data_start:data_end + 1].astype(bool)
