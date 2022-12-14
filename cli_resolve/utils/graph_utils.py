@@ -1,6 +1,5 @@
 import json
 import math
-
 import pandas as pd
 import seaborn as sns
 from matplotlib import pyplot as plt
@@ -46,7 +45,7 @@ def generate_heatmap(filepath, years_list, notable_days=None):
             cbar_kws={
                 'orientation': 'horizontal',
                 'fraction': 0.04,
-                'pad': 0.04
+                'pad': 0.08
             },
             xticklabels=True,
             yticklabels=True,
@@ -110,16 +109,21 @@ def generate_heatmap(filepath, years_list, notable_days=None):
 
     print("*** Saving to data/exports folder")
     plt.savefig("data/exports/temp_graph.pdf", orientation='portrait')
-    plt.show()
 
 
-def generate_minimap(filename):
+def generate_minimaps(filename, years_list):
     df = pd.read_csv(filename)
+    num_years = len(years_list)
+
     pd.set_option('display.max_columns', None)
+    # TODO: Make it easier to see distinct values in preview
     print(f"Preview of uploaded dataset:\n{df.head()}\n")
 
+    # TODO: Add "all" option (or "all bools")
     cols = input("Enter a comma-separated list of columns to create minimaps from (e.g. exercise,skincare): ")
+    cols = "".join(cols.split())  # remove whitespace
     col_list = cols.split(",")
+    col_list = [x for x in col_list if x]  # remove empty elements
 
     # Calculate the smallest squarish grid that will hold all plots
     num_maps = len(col_list)
@@ -131,34 +135,100 @@ def generate_minimap(filename):
         else:
             break
 
-    fig, axes = plt.subplots(nrows=num_rows, ncols=num_cols)
+    # Calculate display size
+    inches_per_col = 3
+    inches_per_row = 5
+    # single res x single year (wide map)
+    graph_width = 12
+    graph_height = 5
+    # muliple res x multiple years
+    if num_maps > 1 and num_years >= 1:
+        graph_width = inches_per_col * num_cols
+        graph_height = inches_per_row * num_rows
+    # single res x multiple years (long map)
+    elif num_maps == 1 and num_years > 1:
+        graph_height = inches_per_row * num_years
+    plt.rcParams["figure.figsize"] = (graph_width, graph_height)
+
+    fig, axes = plt.subplots(
+        nrows=num_rows,
+        ncols=num_cols,
+        sharex=True,
+        sharey=True
+    )
     i = 0
     j = 0
     for res in col_list:
         try:
-            try:
+            if num_years == 1:
                 df_map = df.pivot("Month", "Day", res)
-            except ValueError:
-                df_map = df.pivot(columns=["Year", "Month"], index="Day", values=res)
+            else:
+                df_map = df.pivot(index=["Year", "Month"], columns="Day", values=res)
+
+            # Use qualitative colormap to display non-binary resolutions and show cbar
+            if "bool" not in res:
+                # Get categories from categorical data
+                categories = pd.unique(df_map.values.ravel())
+                categories = [x for x in categories if not pd.isnull(x)]
+                cat_to_int = {j: i for i, j in enumerate(categories)}
+                n = len(cat_to_int)
+                df_map = df_map.replace(cat_to_int)
+                # Generate colors based on a cmap, with 0's as white
+                if n > 2:
+                    palette = sns.color_palette("turbo", n - 1)
+                    colors = ["white"] + palette
+                else:  # if there's only 2 categories (including 0) it might as well be binary
+                    colors = ["white", "black"]
+                display_cbar = True
+            else:
+                colors = "binary"
+                display_cbar = False
+
             nyr_map = sns.heatmap(
                 df_map,
-                vmin=0,
-                vmax=1,
-                cmap="binary",
+                cmap=colors,
                 square=True,
-                cbar=False,
-                ax=axes[i][j] if num_maps > 2 else axes[j]
+                cbar=display_cbar,
+                cbar_kws={
+                    "orientation": "horizontal",
+                    "fraction": 0.03,
+                    "pad": 0.08
+                },
+                ax=axes[i][j] if num_maps > 2 else axes[j] if num_maps == 2 else axes
             )
+
+            # Modify cbar for categorical resolutions
+            if display_cbar:
+                colorbar = nyr_map.collections[0].colorbar
+                r = colorbar.vmax - colorbar.vmin
+                colorbar.set_ticks([colorbar.vmin + r / n * (0.5 + i) for i in range(n)])
+                colorbar.set_ticklabels(list(cat_to_int.keys()))
+
+            # Turn off labels on minimaps
             nyr_map.set(
-                title=f"{res}"
+                title=f"{res}",
+                xlabel="",
+                ylabel="",
             )
+            # Set tick bins and rotation
+            xbins = 7  # weekly ticks
+            if num_years == 1:
+                ybins = 2  # semiannual ticks
+            else:
+                ybins = num_years
+            nyr_map.locator_params(axis='x', nbins=xbins)
+            nyr_map.tick_params(axis='x', labelrotation=0)
+            nyr_map.locator_params(axis='y', nbins=ybins)
+            nyr_map.tick_params(axis='y', labelrotation=90)
+
             sns.despine(
                 top=False,
                 right=False,
                 left=False,
                 bottom=False,
             )
-            # Fill across columns first, then move down to next row
+
+            # Fill grid across columns first, then move down to next row
             if num_maps > 2:
                 if j < num_cols - 1:
                     j += 1
@@ -181,5 +251,13 @@ def generate_minimap(filename):
                 j = 0
                 i += 1
 
-    fig.subplots_adjust(hspace=0)
-    plt.show()
+    fig.subplots_adjust(hspace=0.2, wspace=0)
+
+    # Add background axis with hidden frame for common xlabel and ylabel
+    fig.add_subplot(111, frameon=False)
+    plt.tick_params(labelcolor='none', which='both', top=False, bottom=False, left=False, right=False)
+    plt.xlabel("Day")
+    plt.ylabel("Year-Month")
+
+    print("*** Saving to data/exports folder")
+    plt.savefig("data/exports/temp_minimaps.pdf", dpi=300)
