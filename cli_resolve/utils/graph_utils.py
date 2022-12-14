@@ -111,20 +111,26 @@ def generate_heatmap(filepath, years_list, notable_days=None):
     plt.savefig("data/exports/temp_graph.pdf", orientation='portrait')
 
 
-def get_resolution_columns_and_values(df):
+def get_resolution_choice_set(df):
     non_options = ["date", "Month", "Day", "Year", "Resolutions Met"]
+    return [x for x in df if x not in non_options]
+
+
+def get_resolution_columns_and_values(df):
+    choice_set = get_resolution_choice_set(df)
     options = ""
-    for col in df:
-        if col not in non_options:
-            values = df[col].unique()
-            options += "{0:20}  {1}".format(col, values)
-            options += "\n"
+    for col in choice_set:
+        values = df[col].unique()
+        options += "{0:20}  {1}".format(col, values)
+        options += "\n"
     return options
 
 
-def get_columns(prompt):
+def get_columns(prompt, df):
     cols = input(prompt)
     cols = "".join(cols.split())  # remove whitespace
+    if cols == "all":
+        return get_resolution_choice_set(df)
     col_list = cols.split(",")
     col_list = [x for x in col_list if x]  # remove empty elements
     return col_list
@@ -138,7 +144,10 @@ def generate_minimaps(filename, years_list):
     print(f"\nPreview of data from uploaded dataset:\n{options}")
 
     # TODO: Add "all" option (or "all bools")
-    col_list = get_columns("Enter a comma-separated list of columns to create minimaps from (e.g. exercise,skincare): ")
+    col_list = get_columns(
+        "Enter a comma-separated list of columns to create minimaps from (e.g. exercise,skincare): ",
+        df
+    )
 
     # Calculate the smallest squarish grid that will hold all plots
     num_maps = len(col_list)
@@ -253,8 +262,7 @@ def generate_minimaps(filename, years_list):
             else:
                 j += 1
         except Exception as e:
-            print(f"Something went wrong: {e}\n"
-                  f"Spelling matters -- perhaps `{res}` is not the name of the column?")
+            print(f"Something went wrong: {e}")
 
     # Remove empty plots from grid by continuing to read through cols, then rows, until out of rows
     if num_maps > 2:
