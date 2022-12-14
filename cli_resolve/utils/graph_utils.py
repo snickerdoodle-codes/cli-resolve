@@ -125,8 +125,6 @@ def generate_minimaps(filename, years_list):
     col_list = cols.split(",")
     col_list = [x for x in col_list if x]  # remove empty elements
 
-    # TODO: Handle corner case of displaying only one minimap
-
     # Calculate the smallest squarish grid that will hold all plots
     num_maps = len(col_list)
     num_cols = math.ceil(math.sqrt(num_maps))
@@ -140,8 +138,16 @@ def generate_minimaps(filename, years_list):
     # Calculate display size
     inches_per_col = 3
     inches_per_row = 5
-    graph_width = inches_per_col * num_cols
-    graph_height = inches_per_row * num_rows
+    # single res x single year (wide map)
+    graph_width = 12
+    graph_height = 5
+    # muliple res x multiple years
+    if num_maps > 1 and num_years >= 1:
+        graph_width = inches_per_col * num_cols
+        graph_height = inches_per_row * num_rows
+    # single res x multiple years (long map)
+    elif num_maps == 1 and num_years > 1:
+        graph_height = inches_per_row * num_years
     plt.rcParams["figure.figsize"] = (graph_width, graph_height)
 
     fig, axes = plt.subplots(
@@ -188,7 +194,7 @@ def generate_minimaps(filename, years_list):
                     "fraction": 0.03,
                     "pad": 0.08
                 },
-                ax=axes[i][j] if num_maps > 2 else axes[j]
+                ax=axes[i][j] if num_maps > 2 else axes[j] if num_maps == 2 else axes
             )
 
             # Modify cbar for categorical resolutions
