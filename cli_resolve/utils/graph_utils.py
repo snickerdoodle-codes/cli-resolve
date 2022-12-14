@@ -111,13 +111,23 @@ def generate_heatmap(filepath, years_list, notable_days=None):
     plt.savefig("data/exports/temp_graph.pdf", orientation='portrait')
 
 
+def get_resolution_columns_and_values(df):
+    non_options = ["date", "Month", "Day", "Year", "Resolutions Met"]
+    options = ""
+    for col in df:
+        if col not in non_options:
+            values = df[col].unique()
+            options += "{0:20}  {1}".format(col, values)
+            options += "\n"
+    return options
+
+
 def generate_minimaps(filename, years_list):
     df = pd.read_csv(filename)
     num_years = len(years_list)
 
-    pd.set_option('display.max_columns', None)
-    # TODO: Make it easier to see distinct values in preview
-    print(f"Preview of uploaded dataset:\n{df.head()}\n")
+    options = get_resolution_columns_and_values(df)
+    print(f"\nPreview of data from uploaded dataset:\n{options}")
 
     # TODO: Add "all" option (or "all bools")
     cols = input("Enter a comma-separated list of columns to create minimaps from (e.g. exercise,skincare): ")
