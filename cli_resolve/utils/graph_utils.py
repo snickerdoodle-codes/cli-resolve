@@ -122,6 +122,14 @@ def get_resolution_columns_and_values(df):
     return options
 
 
+def get_columns(prompt):
+    cols = input(prompt)
+    cols = "".join(cols.split())  # remove whitespace
+    col_list = cols.split(",")
+    col_list = [x for x in col_list if x]  # remove empty elements
+    return col_list
+
+
 def generate_minimaps(filename, years_list):
     df = pd.read_csv(filename)
     num_years = len(years_list)
@@ -130,10 +138,7 @@ def generate_minimaps(filename, years_list):
     print(f"\nPreview of data from uploaded dataset:\n{options}")
 
     # TODO: Add "all" option (or "all bools")
-    cols = input("Enter a comma-separated list of columns to create minimaps from (e.g. exercise,skincare): ")
-    cols = "".join(cols.split())  # remove whitespace
-    col_list = cols.split(",")
-    col_list = [x for x in col_list if x]  # remove empty elements
+    col_list = get_columns("Enter a comma-separated list of columns to create minimaps from (e.g. exercise,skincare): ")
 
     # Calculate the smallest squarish grid that will hold all plots
     num_maps = len(col_list)
@@ -148,11 +153,11 @@ def generate_minimaps(filename, years_list):
     # Calculate display size
     inches_per_col = 3
     inches_per_row = 5
-    # single res x single year (wide map)
+    # single/multiple res x single year (wide map)
     graph_width = 12
-    graph_height = 5
+    graph_height = 8
     # muliple res x multiple years
-    if num_maps > 1 and num_years >= 1:
+    if num_maps > 1 and num_years > 1:
         graph_width = inches_per_col * num_cols
         graph_height = inches_per_row * num_rows
     # single res x multiple years (long map)
