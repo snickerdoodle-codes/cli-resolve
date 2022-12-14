@@ -129,11 +129,24 @@ def get_resolution_columns_and_values(df):
 def get_columns(prompt, df):
     cols = input(prompt)
     cols = "".join(cols.split())  # remove whitespace
-    if cols == "all":
-        return get_resolution_choice_set(df)
+    all_options = get_resolution_choice_set(df)
+
+    if cols.lower() == "all":
+        return all_options
+    if cols.lower() == "binary":
+        return [x for x in all_options if "bool" in x]
+    if cols.lower() == "nonbinary":
+        return [x for x in all_options if "bool" not in x]
+
     col_list = cols.split(",")
     col_list = [x for x in col_list if x]  # remove empty elements
-    return col_list
+    validated_list = []
+    for col in col_list:
+        if col not in all_options:
+            print(f"`{col}` is not a valid column -- removing from list to generate minimaps from")
+        else:
+            validated_list.append(col)
+    return validated_list
 
 
 def generate_minimaps(filename, years_list):
@@ -143,11 +156,18 @@ def generate_minimaps(filename, years_list):
     options = get_resolution_columns_and_values(df)
     print(f"\nPreview of data from uploaded dataset:\n{options}")
 
-    # TODO: Add "all" option (or "all bools")
-    col_list = get_columns(
-        "Enter a comma-separated list of columns to create minimaps from (e.g. exercise,skincare): ",
-        df
-    )
+    instructions = "Enter a comma-separated list of columns to create minimaps from (e.g. exercise,skincare).\n" \
+                   "You may also enter:\n" \
+                   "--'all' to use all columns, \n" \
+                   "--'binary' to use all boolean columns, or\n" \
+                   "--'nonbinary' to use all non-boolean columns\n"
+    print(f"INSTRUCTIONS: {instructions}")
+    col_list = []
+    while len(col_list) == 0:
+        col_list = get_columns(
+            "Which resolutions do you want to create minimaps from?: ",
+            df
+        )
 
     # Calculate the smallest squarish grid that will hold all plots
     num_maps = len(col_list)
@@ -159,6 +179,7 @@ def generate_minimaps(filename, years_list):
         else:
             break
 
+    # TODO: optimize display size; make wide maps when more cols than rows
     # Calculate display size
     inches_per_col = 3
     inches_per_row = 5
