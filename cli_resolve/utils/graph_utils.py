@@ -111,22 +111,66 @@ def generate_heatmap(filepath, years_list, notable_days=None):
     plt.savefig("data/exports/temp_graph.pdf", orientation='portrait')
 
 
-def generate_minimaps(filename, years_list):
-    df = pd.read_csv(filename)
-    num_years = len(years_list)
+def get_resolution_choice_set(df):
+    non_options = ["date", "Month", "Day", "Year", "Resolutions Met"]
+    return [x for x in df if x not in non_options]
 
-    pd.set_option('display.max_columns', None)
-    # TODO: Make it easier to see distinct values in preview
-    print(f"Preview of uploaded dataset:\n{df.head()}\n")
 
-    # TODO: Add "all" option (or "all bools")
-    cols = input("Enter a comma-separated list of columns to create minimaps from (e.g. exercise,skincare): ")
+def get_resolution_columns_and_values(df):
+    choice_set = get_resolution_choice_set(df)
+    options = ""
+    for col in choice_set:
+        values = df[col].unique()
+        options += "{0:20}  {1}".format(col, values)
+        options += "\n"
+    return options
+
+
+def get_columns(prompt, df):
+    cols = input(prompt)
     cols = "".join(cols.split())  # remove whitespace
+    all_options = get_resolution_choice_set(df)
+
+    if cols.lower() == "all":
+        return all_options
+    if cols.lower() == "binary":
+        return [x for x in all_options if "bool" in x]
+    if cols.lower() == "nonbinary":
+        return [x for x in all_options if "bool" not in x]
+
     col_list = cols.split(",")
     col_list = [x for x in col_list if x]  # remove empty elements
+    validated_list = []
+    for col in col_list:
+        if col not in all_options:
+            print(f"`{col}` is not a valid column -- removing from list to generate minimaps from")
+        else:
+            validated_list.append(col)
+    return validated_list
 
-    # Calculate the smallest squarish grid that will hold all plots
-    num_maps = len(col_list)
+
+def optimize_display_size(num_cols, num_rows, num_years):
+    # Determine height and width of final figure
+    months_in_year = 12
+    days_in_month = 31
+    h = months_in_year * num_years * num_rows
+    w = days_in_month * num_cols
+    # Set inches per horizontal and vertical unit
+    inches_per_col = 2
+    inches_per_year = 4.5
+    # Set minimum display sizes for long and short sides of canvas
+    min_long = 12
+    min_short = 8
+    if w > h:  # wide display
+        graph_width = min_long if inches_per_col * num_cols < min_long else inches_per_col * num_cols
+        graph_height = min_short if inches_per_year * num_years < min_short else inches_per_year * num_years
+    else:  # long display
+        graph_width = min_short if inches_per_col * num_cols < min_short else inches_per_col * num_cols
+        graph_height = min_long if inches_per_year * num_years < min_long else inches_per_year * num_years
+    return graph_height, graph_width
+
+
+def calculate_grid_dimensions(num_maps):
     num_cols = math.ceil(math.sqrt(num_maps))
     num_rows = num_cols
     while (num_rows * num_cols) >= num_maps:
@@ -134,20 +178,34 @@ def generate_minimaps(filename, years_list):
             num_rows -= 1
         else:
             break
+    return num_cols, num_rows
 
-    # Calculate display size
-    inches_per_col = 3
-    inches_per_row = 5
-    # single res x single year (wide map)
-    graph_width = 12
-    graph_height = 5
-    # muliple res x multiple years
-    if num_maps > 1 and num_years >= 1:
-        graph_width = inches_per_col * num_cols
-        graph_height = inches_per_row * num_rows
-    # single res x multiple years (long map)
-    elif num_maps == 1 and num_years > 1:
-        graph_height = inches_per_row * num_years
+
+def generate_minimaps(filename, years_list):
+    df = pd.read_csv(filename)
+    num_years = len(years_list)
+
+    options = get_resolution_columns_and_values(df)
+    print(f"\nPreview of data from uploaded dataset:\n{options}")
+
+    instructions = "Enter a comma-separated list of columns to create minimaps from (e.g. exercise,skincare).\n" \
+                   "You may also enter:\n" \
+                   "--'all' to use all columns, \n" \
+                   "--'binary' to use all boolean columns, or\n" \
+                   "--'nonbinary' to use all non-boolean columns\n"
+    print(f"INSTRUCTIONS: {instructions}")
+    col_list = []
+    while len(col_list) == 0:
+        col_list = get_columns(
+            "Which resolutions do you want to create minimaps from?: ",
+            df
+        )
+
+    # Calculate the smallest squarish grid that will hold all plots
+    num_maps = len(col_list)
+    num_cols, num_rows = calculate_grid_dimensions(num_maps)
+
+    graph_height, graph_width = optimize_display_size(num_cols, num_rows, num_years)
     plt.rcParams["figure.figsize"] = (graph_width, graph_height)
 
     fig, axes = plt.subplots(
@@ -221,6 +279,7 @@ def generate_minimaps(filename, years_list):
             nyr_map.locator_params(axis='y', nbins=ybins)
             nyr_map.tick_params(axis='y', labelrotation=90)
 
+            # Keep border around each subplot
             sns.despine(
                 top=False,
                 right=False,
@@ -238,8 +297,7 @@ def generate_minimaps(filename, years_list):
             else:
                 j += 1
         except Exception as e:
-            print(f"Something went wrong: {e}\n"
-                  f"Spelling matters -- perhaps `{res}` is not the name of the column?")
+            print(f"Something went wrong: {e}")
 
     # Remove empty plots from grid by continuing to read through cols, then rows, until out of rows
     if num_maps > 2:
@@ -261,3 +319,5 @@ def generate_minimaps(filename, years_list):
 
     print("*** Saving to data/exports folder")
     plt.savefig("data/exports/temp_minimaps.pdf", dpi=300)
+
+
