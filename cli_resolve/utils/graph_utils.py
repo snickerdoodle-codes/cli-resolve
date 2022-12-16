@@ -170,6 +170,17 @@ def optimize_display_size(num_cols, num_rows, num_years):
     return graph_height, graph_width
 
 
+def calculate_grid_dimensions(num_maps):
+    num_cols = math.ceil(math.sqrt(num_maps))
+    num_rows = num_cols
+    while (num_rows * num_cols) >= num_maps:
+        if ((num_rows - 1) * num_cols) >= num_maps:
+            num_rows -= 1
+        else:
+            break
+    return num_cols, num_rows
+
+
 def generate_minimaps(filename, years_list):
     df = pd.read_csv(filename)
     num_years = len(years_list)
@@ -192,13 +203,7 @@ def generate_minimaps(filename, years_list):
 
     # Calculate the smallest squarish grid that will hold all plots
     num_maps = len(col_list)
-    num_cols = math.ceil(math.sqrt(num_maps))
-    num_rows = num_cols
-    while (num_rows * num_cols) >= num_maps:
-        if ((num_rows - 1) * num_cols) >= num_maps:
-            num_rows -= 1
-        else:
-            break
+    num_cols, num_rows = calculate_grid_dimensions(num_maps)
 
     graph_height, graph_width = optimize_display_size(num_cols, num_rows, num_years)
     plt.rcParams["figure.figsize"] = (graph_width, graph_height)
@@ -274,6 +279,7 @@ def generate_minimaps(filename, years_list):
             nyr_map.locator_params(axis='y', nbins=ybins)
             nyr_map.tick_params(axis='y', labelrotation=90)
 
+            # Keep border around each subplot
             sns.despine(
                 top=False,
                 right=False,
@@ -313,4 +319,5 @@ def generate_minimaps(filename, years_list):
 
     print("*** Saving to data/exports folder")
     plt.savefig("data/exports/temp_minimaps.pdf", dpi=300)
+
 
