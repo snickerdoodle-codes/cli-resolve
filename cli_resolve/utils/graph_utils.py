@@ -149,6 +149,27 @@ def get_columns(prompt, df):
     return validated_list
 
 
+def optimize_display_size(num_cols, num_rows, num_years):
+    # Determine height and width of final figure
+    months_in_year = 12
+    days_in_month = 31
+    h = months_in_year * num_years * num_rows
+    w = days_in_month * num_cols
+    # Set inches per horizontal and vertical unit
+    inches_per_col = 2
+    inches_per_year = 4.5
+    # Set minimum display sizes for long and short sides of canvas
+    min_long = 12
+    min_short = 8
+    if w > h:  # wide display
+        graph_width = min_long if inches_per_col * num_cols < min_long else inches_per_col * num_cols
+        graph_height = min_short if inches_per_year * num_years < min_short else inches_per_year * num_years
+    else:  # long display
+        graph_width = min_short if inches_per_col * num_cols < min_short else inches_per_col * num_cols
+        graph_height = min_long if inches_per_year * num_years < min_long else inches_per_year * num_years
+    return graph_height, graph_width
+
+
 def generate_minimaps(filename, years_list):
     df = pd.read_csv(filename)
     num_years = len(years_list)
@@ -179,20 +200,7 @@ def generate_minimaps(filename, years_list):
         else:
             break
 
-    # TODO: optimize display size; make wide maps when more cols than rows
-    # Calculate display size
-    inches_per_col = 3
-    inches_per_row = 5
-    # single/multiple res x single year (wide map)
-    graph_width = 12
-    graph_height = 8
-    # muliple res x multiple years
-    if num_maps > 1 and num_years > 1:
-        graph_width = inches_per_col * num_cols
-        graph_height = inches_per_row * num_rows
-    # single res x multiple years (long map)
-    elif num_maps == 1 and num_years > 1:
-        graph_height = inches_per_row * num_years
+    graph_height, graph_width = optimize_display_size(num_cols, num_rows, num_years)
     plt.rcParams["figure.figsize"] = (graph_width, graph_height)
 
     fig, axes = plt.subplots(
@@ -305,3 +313,4 @@ def generate_minimaps(filename, years_list):
 
     print("*** Saving to data/exports folder")
     plt.savefig("data/exports/temp_minimaps.pdf", dpi=300)
+
