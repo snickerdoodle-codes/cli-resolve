@@ -9,17 +9,59 @@ from cli_resolve.utils.resolution_utils import get_boolean_response, get_date_st
 # INPUTS
 filename = "nyr22_partial.csv"
 
+
+def get_resolution_choice_set(df):
+    non_options = ["date", "Month", "Day", "Year", "Resolutions Met"]
+    return [x for x in df if x not in non_options and "bool" not in x]
+
+
+def get_resolution_columns_and_values(df):
+    choice_set = get_resolution_choice_set(df)
+    options = ""
+    for col in choice_set:
+        values = df[col].unique()
+        options += "{0:20}  {1}".format(col, values)
+        options += "\n"
+    return options
+
+
+def get_columns(prompt, df):
+    cols = input(prompt)
+    cols = "".join(cols.split())  # remove whitespace
+    all_options = get_resolution_choice_set(df)
+
+    if cols.lower() == "all":
+        return all_options
+
+    col_list = cols.split(",")
+    col_list = [x for x in col_list if x]  # remove empty elements
+    validated_list = []
+    for col in col_list:
+        if col not in all_options:
+            print(f"`{col}` is not a valid column -- removing from list to generate minimaps from")
+        else:
+            validated_list.append(col)
+    return validated_list
+
+
 # Read the CSV
 filepath = f"../data/cleaned/{filename}"
 if not os.path.exists(filepath):
     sys.exit(f"filepath={filepath} does not exist")
 
 df = pd.read_csv(filepath)
-pd.set_option('display.max_columns', None)
-print(f"Preview of uploaded dataset:\n{df.head()}\n")
+options = get_resolution_columns_and_values(df)
+print(f"Preview of data from uploaded dataset:\n{options}\n")
 
-cols = input("Enter a comma-separated list of columns containing resolution data (e.g. exercise,skincare): ")
-col_list = cols.split(",")
+instructions = "Enter a comma-separated list of columns containing resolution data (e.g. exercise,skincare).\n" \
+               "Enter 'all' to use all columns.\n"
+print(f"INSTRUCTIONS: {instructions}")
+col_list = []
+while len(col_list) == 0:
+    col_list = get_columns(
+        "Which resolutions do you want to backpopulate?: ",
+        df
+    )
 
 # Load app data
 with open("../data/back.json", "r") as f:
