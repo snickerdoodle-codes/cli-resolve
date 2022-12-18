@@ -45,7 +45,13 @@ def export_csv(start_date_str=None, end_date_str=None):
         for res in res_fields:
             log_data = all_res_dict[res]["data"]
             try:
-                datapoint = {res: log_data[curr_date_str]}
+                data_on_date = log_data[curr_date_str]
+                if data_on_date is False:
+                    datapoint = {res: 0}
+                elif data_on_date is True:
+                    datapoint = {res: 1}
+                else:
+                    datapoint = {res: data_on_date}
                 print(f"*** Data found for resolution={res} on date={curr_date_str}!")
             except KeyError:
                 print(f"resolution={res} does not have data for date={curr_date_str}, recording as 0")
