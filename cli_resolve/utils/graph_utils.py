@@ -1,12 +1,57 @@
 import json
 import math
+import os
 import pandas as pd
 import seaborn as sns
 from matplotlib import pyplot as plt
+from .export_utils import get_years_list
+from .resolution_utils import get_boolean_response
 
 
-def generate_heatmap(filepath, years_list, notable_days=None):
+def print_files(list_of_files):
+    files = ""
+    for idx, f in enumerate(list_of_files):
+        files += "{0:30}  {1}".format(f, idx)
+        files += "\n"
+    print("\n{0:30}  {1}".format("FILE", "INDEX"))
+    print(files)
+
+
+def get_index_response(prompt, num_cols):
+    while True:
+        try:
+            value = int(input(prompt))
+            if value < 0 or value > num_cols - 1:
+                raise ValueError(f"Index {value} out of range for current dataset")
+            else:
+                return value
+        except ValueError as value_e:
+            print(f"Invalid input: {value_e}")
+            continue
+
+
+def export_graph_from_file():
+    path = "data/cleaned"
+    dir_list = os.listdir(path)
+    dir_list.sort()
+    print_files(dir_list)
+    index = get_index_response("Enter the index of the file from which you wish to generate graphs: ", len(dir_list))
+    file = dir_list[index]
+    filepath = f"data/cleaned/{file}"
+
+    export_minimaps = get_boolean_response("Do you want minimaps for select resolutions? (Y/N): ")
+    generate_heatmap(filepath)
+    if export_minimaps:
+        generate_minimaps(filepath)
+    plt.show()
+
+
+def generate_heatmap(filepath, years_list=None, notable_days=None):
     df = pd.read_csv(filepath)
+    if not years_list:
+        start_date_str = df["date"][0]
+        end_date_str = df["date"][len(df) - 1]
+        years_list = get_years_list(start_date_str, end_date_str)
     num_years = len(years_list)
 
     if num_years == 1:
@@ -181,8 +226,12 @@ def calculate_grid_dimensions(num_maps):
     return num_cols, num_rows
 
 
-def generate_minimaps(filename, years_list):
+def generate_minimaps(filename, years_list=None):
     df = pd.read_csv(filename)
+    if not years_list:
+        start_date_str = df["date"][0]
+        end_date_str = df["date"][len(df) - 1]
+        years_list = get_years_list(start_date_str, end_date_str)
     num_years = len(years_list)
 
     options = get_resolution_columns_and_values(df)
@@ -315,7 +364,10 @@ def generate_minimaps(filename, years_list):
     fig.add_subplot(111, frameon=False)
     plt.tick_params(labelcolor='none', which='both', top=False, bottom=False, left=False, right=False)
     plt.xlabel("Day")
-    plt.ylabel("Year-Month")
+    if num_years == 1:
+        plt.ylabel("Month")
+    else:
+        plt.ylabel("Year-Month")
 
     print("*** Saving to data/exports folder")
     plt.savefig("data/exports/temp_minimaps.pdf", dpi=300)

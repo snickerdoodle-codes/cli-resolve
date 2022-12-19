@@ -5,8 +5,9 @@ from utils.export_utils import *
 from utils.graph_utils import *
 
 INSTRUCTIONS = "Enter the start and end dates ('MM/DD/YYYY') for which you would like to make an export.\n" \
-               "If you specify only the year, all data from that year will be included.\n" \
+               "--if you specify only the year, all data from that year will be included\n" \
                "e.g. start_date='2020' and end_date='2021' exports all data from 1/1/2020 to 12/31/2021\n"
+GRAPH_INSTRUCTIONS = "--enter 'file' to load a dataset from file"
 
 
 def export_csv(start_date_str=None, end_date_str=None):
@@ -63,8 +64,10 @@ def export_csv(start_date_str=None, end_date_str=None):
 
 
 def export_graph():
-    print(f"INSTRUCTIONS: {INSTRUCTIONS}")
+    print(f"INSTRUCTIONS: {INSTRUCTIONS}{GRAPH_INSTRUCTIONS}")
     start_date_str = get_date_string_response("start date: ", year_start=True)
+    if start_date_str == "file":
+        return export_graph_from_file()
     end_date_str = get_date_string_response("end date: ", year_end=True)
     years_list = get_years_list(start_date_str, end_date_str)
 

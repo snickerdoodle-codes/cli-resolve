@@ -16,17 +16,18 @@ def get_date_string_response(prompt, instructions=None, year_start=False, year_e
             if instructions:
                 print(f"INSTRUCTIONS: {instructions}\n")
             value = input(prompt)
+            if value.lower() == "today":
+                return date.today().strftime("%-m/%-d/%Y")
+            if value.lower() == "never":
+                return None
+            if value.lower() == "file":
+                return "file"
             if year_start:
                 value = f"1/1/{value}"
             if year_end:
                 value = f"12/31/{value}"
-            if value.lower() == "today":
-                return date.today().strftime("%-m/%-d/%Y")
-            elif value.lower() == "never":
-                return None
-            else:
-                validate_date_string(value)
-                return value
+            validate_date_string(value)
+            return value
         except ValueError as e:
             print(f"Invalid input: {e}")
             continue
