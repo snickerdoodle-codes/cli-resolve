@@ -64,7 +64,7 @@ while len(col_list) == 0:
     )
 
 # Load app data
-with open("../data/back.json", "r") as f:
+with open("../data/resolutions.json", "r") as f:
     app_data = json.load(f)
 
 # Loop through each resolution column
@@ -190,6 +190,6 @@ while curr_col <= data_end:
     curr_col += 1
 
 print("*** Saving backpopulated resolutions data")
-with open("../data/back.json", "w+") as f:
+with open("../data/resolutions.json", "w+") as f:
     json.dump(app_data, f, indent=4)
 print("*** Saved!")

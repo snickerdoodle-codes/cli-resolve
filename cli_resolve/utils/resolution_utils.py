@@ -99,7 +99,7 @@ def add_detail_code(char):
 
 
 def get_all_resolutions():
-    with open("data/back.json", "r") as f:
+    with open("data/resolutions.json", "r") as f:
         all_res_dict = json.load(f)
     return all_res_dict
 
