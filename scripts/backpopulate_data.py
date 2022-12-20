@@ -3,6 +3,7 @@ import os
 import sys
 import json
 from datetime import datetime
+import shutil
 
 from cli_resolve.utils.resolution_utils import get_boolean_response, get_date_string_response
 
@@ -189,6 +190,9 @@ while curr_col <= data_end:
     curr_day = 0
     curr_col += 1
 
+print("*** Making backup copy of current resolutions data before save")
+ts = int(datetime.now().timestamp())
+shutil.copy("../data/resolutions.json", f"../data/backups/resolutions_{ts}.json")
 print("*** Saving backpopulated resolutions data")
 with open("../data/resolutions.json", "w+") as f:
     json.dump(app_data, f, indent=4)
