@@ -32,7 +32,7 @@ def log_resolutions():
     with open("data/resolutions.json", "w") as f:
         json.dump(all_res_dict, f, indent=4)
     print(f"*** Saved logs for {log_date}!")
-    go_home_message()
+    return go_home_message()
 
 
 def add_resolution():
