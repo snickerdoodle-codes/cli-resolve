@@ -1,6 +1,4 @@
-import os
-
-from utils.resolution_utils import get_all_resolutions, get_date_string_response, get_boolean_response
+from utils.resolution_utils import get_all_resolutions
 from utils.export_utils import *
 from utils.graph_utils import *
 from utils.menu_utils import *
@@ -15,8 +13,8 @@ def export_csv(start_date_str=None, end_date_str=None):
     print("*** Exporting CSV")
     if not start_date_str or not end_date_str:
         print(f"INSTRUCTIONS: {INSTRUCTIONS}")
-        start_date_str = get_date_string_response("start date: ", year_start=True)
-        end_date_str = get_date_string_response("end date: ", year_end=True)
+        start_date_str = handle_input(prompt="start date: ", response_type="datestring", year_start=True)
+        end_date_str = handle_input(prompt="end date: ", response_type="datestring", year_end=True)
 
     fname_start = get_filename(start_date_str)
     fname_end = get_filename(end_date_str)
@@ -24,7 +22,7 @@ def export_csv(start_date_str=None, end_date_str=None):
     # Check whether there's already a CSV for the time range of interest
     if os.path.exists(f"data/exports/res_{fname_start}_{fname_end}.csv"):
         print(f"There is already a CSV file for start={start_date_str} end={end_date_str}.")
-        override = get_boolean_response("Save over existing file? (Y/N): ")
+        override = handle_input(prompt="Save over existing file? (Y/N): ", response_type="boolean")
         if not override:
             return
 
@@ -66,18 +64,20 @@ def export_csv(start_date_str=None, end_date_str=None):
 
 def export_graph():
     print(f"INSTRUCTIONS: {INSTRUCTIONS}{GRAPH_INSTRUCTIONS}")
-    start_date_str = get_date_string_response("start date: ", year_start=True)
+    start_date_str = handle_input(prompt="start date: ", response_type="datestring", year_start=True)
     if start_date_str == "file":
         return export_graph_from_file()
-    end_date_str = get_date_string_response("end date: ", year_end=True)
+    end_date_str = handle_input(prompt="end date: ", response_type="datestring", year_end=True)
     years_list = get_years_list(start_date_str, end_date_str)
 
-    display_events = get_boolean_response("Do you want event data overlaid on this graph? (Y/N): ")
+    display_events = handle_input(prompt="Do you want event data overlaid on this graph? (Y/N): ",
+                                  response_type="boolean")
     if display_events:
-        event_type = handle_input("What type of events? ")
+        event_type = handle_input(prompt="What type of events? ")
     else:
         event_type = None
-    export_minimaps = get_boolean_response("Do you want minimaps for select resolutions? (Y/N): ")
+    export_minimaps = handle_input(prompt="Do you want minimaps for select resolutions? (Y/N): ",
+                                   response_type="boolean")
 
     fname_start = get_filename(start_date_str)
     fname_end = get_filename(end_date_str)
@@ -90,8 +90,10 @@ def export_graph():
 
     if already_cleaned:
         last_generated_ts = datetime.fromtimestamp(os.path.getmtime(cleaned_filepath))
-        regenerate = get_boolean_response(f"Clean data for this graph last generated {last_generated_ts}. "
-                                          f"Do you want to rerun? (Y/N): ")
+        regenerate = handle_input(
+            prompt=f"Clean data for this graph last generated {last_generated_ts}. Do you want to rerun? (Y/N): ",
+            response_type="boolean"
+        )
         if not regenerate:
             generate_heatmap(cleaned_filepath, years_list=years_list, notable_days=event_type)
             if export_minimaps:

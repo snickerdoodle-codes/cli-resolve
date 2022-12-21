@@ -1,5 +1,3 @@
-from time import sleep
-
 from resolution import *
 from export import *
 
@@ -37,7 +35,7 @@ class Menu:
         print()
         print("Enter 'menu' at anytime to return to menu\n"
               "Enter 'q' to quit\n")
-        command = handle_input("What would you like to do? (enter #): ")
+        command = handle_input(prompt="What would you like to do? (enter #): ")
         print()
         try:
             self.options[command]["function"]()

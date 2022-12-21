@@ -1,5 +1,4 @@
 import os
-import sys
 from time import sleep
 
 
@@ -16,15 +15,3 @@ def go_home_message(delay=2):
 
 def goto_menu():
     return go_home_message()
-
-
-# TODO: use this function to handle all inputs by redirecting inputs to the appropriate response getter function
-#  (e.g. get_boolean_response); eventually move functions to an input_utils.py
-def handle_input(prompt):
-    command = input(prompt)
-    if command == "q":
-        sys.exit("Goodbye!")
-    if command == "menu":
-        goto_menu()
-    else:
-        return command
