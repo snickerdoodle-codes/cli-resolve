@@ -3,6 +3,7 @@ import os
 from utils.resolution_utils import get_all_resolutions, get_date_string_response, get_boolean_response
 from utils.export_utils import *
 from utils.graph_utils import *
+from utils.menu_utils import *
 
 INSTRUCTIONS = "Enter the start and end dates ('MM/DD/YYYY') for which you would like to make an export.\n" \
                "--if you specify only the year, all data from that year will be included\n" \
@@ -73,7 +74,7 @@ def export_graph():
 
     display_events = get_boolean_response("Do you want event data overlaid on this graph? (Y/N): ")
     if display_events:
-        event_type = input("What type of events? ")
+        event_type = handle_input("What type of events? ")
     else:
         event_type = None
     export_minimaps = get_boolean_response("Do you want minimaps for select resolutions? (Y/N): ")

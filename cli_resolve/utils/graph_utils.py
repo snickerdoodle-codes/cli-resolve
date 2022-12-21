@@ -6,6 +6,7 @@ import seaborn as sns
 from matplotlib import pyplot as plt
 from .export_utils import get_years_list
 from .resolution_utils import get_boolean_response
+from .menu_utils import goto_menu
 
 
 def print_files(list_of_files):
@@ -20,7 +21,10 @@ def print_files(list_of_files):
 def get_index_response(prompt, num_cols):
     while True:
         try:
-            value = int(input(prompt))
+            command = input(prompt)
+            if command == "menu":
+                goto_menu()
+            value = int(command)
             if value < 0 or value > num_cols - 1:
                 raise ValueError(f"Index {value} out of range for current dataset")
             else:
@@ -173,6 +177,8 @@ def get_resolution_columns_and_values(df):
 
 def get_columns(prompt, df):
     cols = input(prompt)
+    if cols == "menu":
+        goto_menu()
     cols = "".join(cols.split())  # remove whitespace
     all_options = get_resolution_choice_set(df)
 
@@ -371,5 +377,3 @@ def generate_minimaps(filename, years_list=None):
 
     print("*** Saving to data/exports folder")
     plt.savefig("data/exports/temp_minimaps.pdf", dpi=300)
-
-

@@ -1,5 +1,6 @@
 from datetime import datetime, date
 import json
+from .menu_utils import goto_menu
 
 
 def get_date_string_response(prompt, instructions=None, year_start=False, year_end=False):
@@ -16,6 +17,8 @@ def get_date_string_response(prompt, instructions=None, year_start=False, year_e
             if instructions:
                 print(f"INSTRUCTIONS: {instructions}\n")
             value = input(prompt)
+            if value == "menu":
+                goto_menu()
             if value.lower() == "today":
                 return date.today().strftime("%-m/%-d/%Y")
             if value.lower() == "never":
@@ -57,6 +60,8 @@ def get_boolean_response(prompt, instructions=None):
             if instructions:
                 print(f"INSTRUCTIONS: {instructions}\n")
             value = input(prompt)
+            if value == "menu":
+                goto_menu()
             if value.upper() == "Y":
                 return True
             elif value.upper() == "N":
@@ -74,6 +79,8 @@ def get_detail_code_response(prompt, instructions, existing_codes):
             print(f"INSTRUCTIONS: {instructions}\n")
             print_detail_codes(existing_codes)
             value = input(prompt)
+            if value == "menu":
+                goto_menu()
 
             if value.upper() == "N":
                 return False

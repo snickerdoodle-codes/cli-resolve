@@ -39,11 +39,11 @@ def add_resolution():
     all_res_dict = get_all_resolutions()
     while True:
         try:
-            res_id = input("Enter a short ID for this resolution in snake_case: ")
+            res_id = handle_input("Enter a short ID for this resolution in snake_case: ")
             if res_id in all_res_dict:
                 print(f"`{res_id}` already exists")
                 continue
-            res_descript = input("Describe this resolution: ")
+            res_descript = handle_input("Describe this resolution: ")
             res_creation_date = date.today()
             is_active = True
             res_expiration_date = get_date_string_response(
@@ -103,7 +103,7 @@ def toggle_active_resolutions():
 
     while True:
         print_resolutions_and_status(all_res_dict)
-        res_key = input("Which resolution would you like to toggle?: ")
+        res_key = handle_input("Which resolution would you like to toggle?: ")
         try:
             all_res_dict[res_key]["is_active"] = not all_res_dict[res_key]["is_active"]
             with open("data/resolutions.json", "w") as f:
