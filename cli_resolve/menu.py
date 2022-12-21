@@ -33,8 +33,7 @@ class Menu:
         for key, val in self.options.items():
             print(f"{key} - {val['text']}")
         print()
-        print("Enter 'menu' at anytime to return to menu\n"
-              "Enter 'q' to quit\n")
+        print("Enter 'q' at anytime to quit\n")
         command = handle_input(prompt="What would you like to do? (enter #): ")
         print()
         try:

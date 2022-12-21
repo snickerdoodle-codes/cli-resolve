@@ -11,7 +11,3 @@ def go_home_message(delay=2):
         print("*** Taking you back to main menu in 3, 2, 1...")
     sleep(delay)
     os.system('clear')
-
-
-def goto_menu():
-    return go_home_message()

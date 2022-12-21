@@ -2,7 +2,6 @@ import sys
 from datetime import date, datetime
 
 from .resolution_utils import print_detail_codes, add_detail_code
-from .menu_utils import goto_menu
 
 
 def get_index_response(command, num_cols):
@@ -98,16 +97,12 @@ def get_detail_code_response(command, existing_codes):
             continue
 
 
-# TODO: use this function to handle all inputs by redirecting inputs to the appropriate response getter function
-#  (e.g. get_boolean_response)
 def handle_input(prompt, response_type=None, **kwargs):
     if kwargs.get("instructions"):
         print(f"INSTRUCTIONS: {kwargs['instructions']}\n")
     command = input(prompt)
     if command == "q":
         sys.exit("Goodbye!")
-    if command == "menu":
-        goto_menu()
 
     if not response_type:  # we just want the input string
         return command
