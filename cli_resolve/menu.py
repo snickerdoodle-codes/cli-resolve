@@ -1,6 +1,3 @@
-import sys
-from time import sleep
-
 from resolution import *
 from export import *
 
@@ -36,11 +33,9 @@ class Menu:
         for key, val in self.options.items():
             print(f"{key} - {val['text']}")
         print()
-        print("Enter 'q' to quit\n")
-        command = input("What would you like to do? (enter #): ")
+        print("Enter 'q' at anytime to quit\n")
+        command = handle_input(prompt="What would you like to do? (enter #): ")
         print()
-        if command == "q":
-            sys.exit("Goodbye!")
         try:
             self.options[command]["function"]()
         except KeyError as e:

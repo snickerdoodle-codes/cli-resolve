@@ -5,7 +5,7 @@ import pandas as pd
 import seaborn as sns
 from matplotlib import pyplot as plt
 from .export_utils import get_years_list
-from .resolution_utils import get_boolean_response
+from .input_utils import *
 
 
 def print_files(list_of_files):
@@ -17,29 +17,19 @@ def print_files(list_of_files):
     print(files)
 
 
-def get_index_response(prompt, num_cols):
-    while True:
-        try:
-            value = int(input(prompt))
-            if value < 0 or value > num_cols - 1:
-                raise ValueError(f"Index {value} out of range for current dataset")
-            else:
-                return value
-        except ValueError as value_e:
-            print(f"Invalid input: {value_e}")
-            continue
-
-
 def export_graph_from_file():
     path = "data/cleaned"
     dir_list = os.listdir(path)
     dir_list.sort()
     print_files(dir_list)
-    index = get_index_response("Enter the index of the file from which you wish to generate graphs: ", len(dir_list))
+    index = handle_input(prompt="Enter the index of the file from which you wish to generate graphs: ",
+                         response_type="index",
+                         num_cols=len(dir_list))
     file = dir_list[index]
     filepath = f"data/cleaned/{file}"
 
-    export_minimaps = get_boolean_response("Do you want minimaps for select resolutions? (Y/N): ")
+    export_minimaps = handle_input(prompt="Do you want minimaps for select resolutions? (Y/N): ",
+                                   response_type="boolean")
     generate_heatmap(filepath)
     if export_minimaps:
         generate_minimaps(filepath)
@@ -371,5 +361,3 @@ def generate_minimaps(filename, years_list=None):
 
     print("*** Saving to data/exports folder")
     plt.savefig("data/exports/temp_minimaps.pdf", dpi=300)
-
-

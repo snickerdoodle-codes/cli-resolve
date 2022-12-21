@@ -5,7 +5,7 @@ import json
 from datetime import datetime
 import shutil
 
-from cli_resolve.utils.resolution_utils import get_boolean_response, get_date_string_response
+from cli_resolve.utils.input_utils import *
 
 # INPUTS
 filename = "nyr22_partial.csv"
@@ -84,7 +84,8 @@ while curr_col <= data_end:
     last_date = df["date"][days - 1]
 
     if exists:
-        merge_data = get_boolean_response(f"res={col_name} already exists. Merge with existing data? (Y/N): ")
+        merge_data = handle_input(prompt=f"res={col_name} already exists. Merge with existing data? (Y/N): ",
+                                  response_type="boolean")
         if merge_data:
             print(f"*** Merging res={col_name}")
             res_id = col_name.lower()
@@ -117,25 +118,28 @@ while curr_col <= data_end:
     # New resolution without precedent
     if (not exists) or (not merge_data):
         if exists:
-            res_id = input(f"Let's give this resolution a new res_id to differentiate it from {col_name}: ")
+            res_id = handle_input(f"Let's give this resolution a new res_id to differentiate it from {col_name}: ")
         else:
-            keep_name = get_boolean_response(f"Want to keep the res_id `{col_name}`? (Y/N): ")
+            keep_name = handle_input(prompt=f"Want to keep the res_id `{col_name}`? (Y/N): ", response_type="boolean")
             if keep_name:
                 res_id = col_name
             else:
-                res_id = input("Let's give this resolution a new res_id: ")
+                res_id = handle_input("Let's give this resolution a new res_id: ")
         print(f"*** Creating a new resolution res={res_id}")
-        res_descript = input("Provide a short description for this resolution: ")
+        res_descript = handle_input("Provide a short description for this resolution: ")
         res_creation_date = df.loc[[0], "date"].values[0]  # first date entry from current data
-        is_active = get_boolean_response("Is this an active resolution? (Y/N): ")
-        is_expired = get_boolean_response(f"Did this resolution expire on {last_date}? (Y/N): ")
+        is_active = handle_input(prompt="Is this an active resolution? (Y/N): ", response_type="boolean")
+        is_expired = handle_input(prompt=f"Did this resolution expire on {last_date}? (Y/N): ", response_type="boolean")
         if is_expired:
             res_expiration_date = last_date
         else:
-            res_expiration_date = get_date_string_response("When does this resolution expire? ('MM/DD/YYYY' or "
-                                                           "'never' for no expiration): ")
-        is_binary = get_boolean_response(
+            res_expiration_date = handle_input(
+                prompt="When does this resolution expire? ('MM/DD/YYYY' or 'never' for no expiration): ",
+                response_type="datestring"
+            )
+        is_binary = handle_input(
             prompt="Is this resolution's outcome binary? (Y/N): ",
+            response_type="boolean",
             instructions="Binary outcomes tell us whether or not you did something, while categorical outcomes "
                          "tell us about the kind of thing you did.\n"
                          "For example, for the resolution to exercise, "
@@ -173,14 +177,14 @@ while curr_col <= data_end:
                 datapoint = code_translator.get(datapoint, datapoint)
                 # Add to detail codes if seeing for first time
                 if datapoint not in detail_codes:
-                    keep_code = get_boolean_response(f"Keep the code `{datapoint}`? (Y/N): ")
+                    keep_code = handle_input(prompt=f"Keep the code `{datapoint}`? (Y/N): ", response_type="boolean")
                     if keep_code:  # add new code to res_detail_codes without changing datapoint
-                        descript = input(f"What activity does `{datapoint}` stand for?: ")
+                        descript = handle_input(f"What activity does `{datapoint}` stand for?: ")
                         detail_codes[datapoint] = descript
                     else:  # add new code to res_detail_codes and change datapoint
-                        code = input(f"Enter a 1-char code to replace `{datapoint}`: ").upper()
+                        code = handle_input(f"Enter a 1-char code to replace `{datapoint}`: ").upper()
                         if code not in detail_codes:
-                            descript = input(f"What activity does `{code}` stand for?: ")
+                            descript = handle_input(f"What activity does `{code}` stand for?: ")
                             detail_codes[code] = descript
                         code_translator[datapoint] = code
                         datapoint = code
