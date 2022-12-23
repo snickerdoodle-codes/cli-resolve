@@ -4,6 +4,10 @@ from utils.menu_utils import *
 
 
 def log_resolutions():
+    """
+    Log entry for all active resolutions.
+    :return:
+    """
     active_res = get_active_resolutions()
     if not active_res:
         print("You don't have any active resolutions!")
@@ -99,6 +103,11 @@ def add_resolution():
 
 
 def toggle_active_resolutions():
+    """
+    Toggle the is_active status of resolutions.
+    Resolutions are considered active if they are currently being tracked.
+    :return:
+    """
     all_res_dict = get_all_resolutions()
 
     if len(all_res_dict) == 0:
@@ -107,11 +116,14 @@ def toggle_active_resolutions():
 
     while True:
         print_resolutions_and_status(all_res_dict)
-        res_key = handle_input(prompt="Which resolution would you like to toggle?: ")
+        res_key = handle_input(prompt="Which resolution would you like to toggle?: ",
+                               instructions="Enter 'menu' to go back")
+        if res_key == "menu":
+            break
         try:
             all_res_dict[res_key]["is_active"] = not all_res_dict[res_key]["is_active"]
             with open("data/resolutions.json", "w") as f:
                 json.dump(all_res_dict, f, indent=4)
-            print(f"*** Toggled active status of `{res_key}`!")
+            print(f"*** Toggled active status of `{res_key}`!\n")
         except KeyError as e:
             print(f"No such resolution key={e}")

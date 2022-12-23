@@ -35,3 +35,4 @@ def print_resolutions_and_status(resolutions):
     print("Printing resolutions and is_active status:")
     for key, val in resolutions.items():
         print(f"* {key}: {val['is_active']}")
+    print()
