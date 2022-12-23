@@ -4,8 +4,9 @@ from datetime import date, datetime
 from .resolution_utils import print_detail_codes, add_detail_code
 
 
-def get_index_response(command, num_cols):
+def get_index_response(prompt, num_cols):
     while True:
+        command = input(prompt)
         try:
             value = int(command)
             if value < 0 or value > num_cols - 1:
@@ -17,15 +18,16 @@ def get_index_response(command, num_cols):
             continue
 
 
-def get_date_string_response(command, year_start=False, year_end=False):
+def get_date_string_response(prompt, year_start=False, year_end=False):
     """
     Generic function for handling prompts requiring date string user inputs
-    :param command:
+    :param prompt:
     :param year_end:
     :param year_start:
     :return:
     """
     while True:
+        command = input(prompt)
         try:
             if command.lower() == "today":
                 return date.today().strftime("%-m/%-d/%Y")
@@ -56,13 +58,14 @@ def validate_date_string(date_string):
         raise ValueError(f"Invalid date={date_string}; date input should be in the form of 'MM/DD/YYYY'")
 
 
-def get_boolean_response(command):
+def get_boolean_response(prompt):
     """
     Takes the response to a Y/N question and outputs the corresponding boolean value if input is valid.
-    :param command:
+    :param prompt:
     :return:
     """
     while True:
+        command = input(prompt)
         try:
             if command.upper() == "Y":
                 return True
@@ -75,8 +78,9 @@ def get_boolean_response(command):
             continue
 
 
-def get_detail_code_response(command, existing_codes):
+def get_detail_code_response(prompt, existing_codes):
     while True:
+        command = input(prompt)
         try:
             print_detail_codes(existing_codes)
 
@@ -98,27 +102,29 @@ def get_detail_code_response(command, existing_codes):
 
 
 def handle_input(prompt, response_type=None, **kwargs):
+    # Print instructions first if provided
     if kwargs.get("instructions"):
         print(f"INSTRUCTIONS: {kwargs['instructions']}\n")
-    command = input(prompt)
-    if command == "q":
-        sys.exit("Goodbye!")
 
-    if not response_type:  # we just want the input string
+    # Without a specified response type, we just want the input string, no validation required
+    if not response_type:
+        command = input(prompt)
+        if command == "q":
+            sys.exit("Goodbye!")
         return command
     elif response_type == "index":
-        return get_index_response(command, num_cols=kwargs["num_cols"])
+        return get_index_response(prompt, num_cols=kwargs["num_cols"])
     elif response_type == "datestring":
         return get_date_string_response(
-            command,
+            prompt,
             year_start=kwargs.get("year_start", False),
             year_end=kwargs.get("year_end", False)
         )
     elif response_type == "boolean":
-        return get_boolean_response(command)
+        return get_boolean_response(prompt)
     elif response_type == "code":
         return get_detail_code_response(
-            command,
+            prompt,
             existing_codes=kwargs.get("codes")
         )
     else:
