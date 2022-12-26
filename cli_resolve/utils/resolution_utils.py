@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 
 
 def add_detail_code(char):
@@ -14,12 +15,23 @@ def get_all_resolutions():
 
 
 def get_active_resolutions():
+    """
+    Returns a dict with all currently active resolutions.
+    :rtype: dict
+    """
     with open("data/resolutions.json", "r") as f:
         all_res_dict = json.load(f)
     active_res_dict = {}
     for key, val in all_res_dict.items():
         if val["is_active"]:
-            active_res_dict[key] = val
+            # Check against expiration date first and update active status if expired
+            expiry = val["res_expiration_date"]
+            if not expiry or datetime.strptime(expiry, "%m/%d/%Y") > datetime.today():
+                active_res_dict[key] = val
+            else:
+                val["is_active"] = False
+                with open("data/resolutions.json", "w") as f:
+                    json.dump(all_res_dict, f, indent=4)
     return active_res_dict
 
 
