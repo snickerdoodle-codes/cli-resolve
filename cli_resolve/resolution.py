@@ -6,7 +6,6 @@ from utils.menu_utils import *
 def log_resolutions():
     """
     Log entry for all active resolutions.
-    :return:
     """
     active_res = get_active_resolutions()
     if not active_res:
@@ -15,11 +14,14 @@ def log_resolutions():
 
     log_date = handle_input(prompt="What is the date for this entry? ('today' or 'MM/DD/YYYY'): ",
                             response_type="datestring")
+
     for res, val in active_res.items():
+        # Get Y/N response for binary resolution
         if val['is_binary']:
             prompt = f"- Did you `{val['res_descript']}`? (Y/N): "
             response = handle_input(prompt=prompt, response_type="boolean")
             val['data'][log_date] = response
+        # Get N or detail codes for non-binary resolution
         else:
             codes = val["res_detail_codes"]
             print(f"codes: {codes}")
@@ -41,6 +43,9 @@ def log_resolutions():
 
 
 def add_resolution():
+    """
+    Add a new resolution.
+    """
     all_res_dict = get_all_resolutions()
     while True:
         try:
@@ -53,7 +58,7 @@ def add_resolution():
             is_active = True
             res_expiration_date = handle_input(
                 prompt="When does this resolution expire? ('MM/DD/YYYY' or 'never' for no "
-                "expiration): ",
+                       "expiration): ",
                 response_type="datestring"
             )
             is_binary = handle_input(
@@ -106,7 +111,6 @@ def toggle_active_resolutions():
     """
     Toggle the is_active status of resolutions.
     Resolutions are considered active if they are currently being tracked.
-    :return:
     """
     all_res_dict = get_all_resolutions()
 
@@ -121,9 +125,21 @@ def toggle_active_resolutions():
         if res_key == "menu":
             break
         try:
+            # Flip the status and save back to disk
             all_res_dict[res_key]["is_active"] = not all_res_dict[res_key]["is_active"]
+            # Set expiration date to today if toggling to inactive
+            if not all_res_dict[res_key]["is_active"]:
+                all_res_dict[res_key]["res_expiration_date"] = date.today().strftime("%-m/%-d/%Y")
+            # Ask for expiration date if toggling to active
+            else:
+                res_expiration_date = handle_input(
+                    prompt="When does this resolution expire? ('MM/DD/YYYY' or 'never' for no "
+                           "expiration): ",
+                    response_type="datestring"
+                )
+                all_res_dict[res_key]["res_expiration_date"] = res_expiration_date
             with open("data/resolutions.json", "w") as f:
                 json.dump(all_res_dict, f, indent=4)
             print(f"*** Toggled active status of `{res_key}`!\n")
         except KeyError as e:
-            print(f"No such resolution key={e}")
+            print(f"No such resolution key={e}\n")
