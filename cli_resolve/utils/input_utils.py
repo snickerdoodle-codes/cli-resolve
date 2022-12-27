@@ -5,6 +5,9 @@ from .resolution_utils import print_detail_codes, add_detail_code
 
 
 def get_index_response(prompt, num_cols):
+    """
+    Gets a valid index.
+    """
     while True:
         command = input(prompt)
         try:
@@ -20,11 +23,7 @@ def get_index_response(prompt, num_cols):
 
 def get_date_string_response(prompt, year_start=False, year_end=False):
     """
-    Generic function for handling prompts requiring date string user inputs
-    :param prompt:
-    :param year_end:
-    :param year_start:
-    :return:
+    Gets a date string in the form of "MM/DD/YYYY".
     """
     while True:
         command = input(prompt)
@@ -48,9 +47,7 @@ def get_date_string_response(prompt, year_start=False, year_end=False):
 
 def validate_date_string(date_string):
     """
-    Validates date input strings to ensure that they are in 'MM/DD/YYYY' format
-    :param date_string:
-    :return:
+    Validates date input strings to ensure that they are in 'MM/DD/YYYY' format.
     """
     try:
         datetime.strptime(date_string, "%m/%d/%Y")
@@ -60,9 +57,7 @@ def validate_date_string(date_string):
 
 def get_boolean_response(prompt):
     """
-    Takes the response to a Y/N question and outputs the corresponding boolean value if input is valid.
-    :param prompt:
-    :return:
+    Takes the response to a Y/N question and returns the corresponding boolean.
     """
     while True:
         command = input(prompt)
@@ -79,6 +74,9 @@ def get_boolean_response(prompt):
 
 
 def get_detail_code_response(prompt, existing_codes):
+    """
+    Gets a valid detail code response.
+    """
     while True:
         print_detail_codes(existing_codes)
         command = input(prompt)
@@ -101,6 +99,10 @@ def get_detail_code_response(prompt, existing_codes):
 
 
 def handle_input(prompt, response_type=None, **kwargs):
+    """
+    Generic function for handling user input.
+    Returns the appropriate response getter (which performs input validation) depending on response_type.
+    """
     # Print instructions first if provided
     if kwargs.get("instructions"):
         print(f"INSTRUCTIONS: {kwargs['instructions']}\n")
