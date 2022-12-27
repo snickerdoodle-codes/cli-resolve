@@ -80,10 +80,9 @@ def get_boolean_response(prompt):
 
 def get_detail_code_response(prompt, existing_codes):
     while True:
+        print_detail_codes(existing_codes)
         command = input(prompt)
         try:
-            print_detail_codes(existing_codes)
-
             if command.upper() == "N":
                 return False
 

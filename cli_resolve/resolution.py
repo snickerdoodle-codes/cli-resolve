@@ -24,7 +24,6 @@ def log_resolutions():
         # Get N or detail codes for non-binary resolution
         else:
             codes = val["res_detail_codes"]
-            print(f"codes: {codes}")
             prompt = f"- Did you `{val['res_descript']}`? "
             instructions = "Enter an existing or new detail code, a comma-separated list of existing detail codes, " \
                            "or 'N' for no."
