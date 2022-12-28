@@ -9,6 +9,9 @@ from .input_utils import *
 
 
 def print_files(list_of_files):
+    """
+    Print a formatted list of files along with their index.
+    """
     files = ""
     for idx, f in enumerate(list_of_files):
         files += "{0:30}  {1}".format(f, idx)
@@ -18,6 +21,9 @@ def print_files(list_of_files):
 
 
 def export_graph_from_file():
+    """
+    Generate and export heatmaps from existing file.
+    """
     path = "data/cleaned"
     dir_list = os.listdir(path)
     dir_list.sort()
@@ -37,6 +43,13 @@ def export_graph_from_file():
 
 
 def generate_heatmap(filepath, years_list=None, notable_days=None):
+    """
+    Generate a heatmap from data in which values denote # of resolutions met that day.
+    Graph is displayed on-screen as well as temporarily saved to data/exports as temp_graph.pdf.
+
+    For aesthetic reasons, maps with multi-year data are displayed differently from maps containing data from a single
+    year. If the name of a valid JSON file is passed into notable_days, annotations will be overlaid onto the map.
+    """
     df = pd.read_csv(filepath)
     if not years_list:
         start_date_str = df["date"][0]
@@ -147,11 +160,20 @@ def generate_heatmap(filepath, years_list=None, notable_days=None):
 
 
 def get_resolution_choice_set(df):
+    """
+    Returns a list of resolution columns from the given dataframe (excluding columns that are not resolutions, such as
+    date columns).
+    """
     non_options = ["date", "Month", "Day", "Year", "Resolutions Met"]
     return [x for x in df if x not in non_options]
 
 
 def get_resolution_columns_and_values(df):
+    """
+    Returns a formatted string containing all options for generating minimaps.
+    First column contains the resolution column name.
+    Second column contains a preview of the values in that column.
+    """
     choice_set = get_resolution_choice_set(df)
     options = ""
     for col in choice_set:
@@ -162,6 +184,9 @@ def get_resolution_columns_and_values(df):
 
 
 def get_columns(prompt, df):
+    """
+    Returns a list of validated columns from which to generate minimaps.
+    """
     cols = input(prompt)
     cols = "".join(cols.split())  # remove whitespace
     all_options = get_resolution_choice_set(df)
@@ -185,6 +210,10 @@ def get_columns(prompt, df):
 
 
 def optimize_display_size(num_cols, num_rows, num_years):
+    """
+    Calculates an aesthetically pleasing (or at least, aesthetically acceptable) height and width for the display based
+    on both the dimensions of the grid containing the minimaps and the number of years covered by the data.
+    """
     # Determine height and width of final figure
     months_in_year = 12
     days_in_month = 31
@@ -206,6 +235,12 @@ def optimize_display_size(num_cols, num_rows, num_years):
 
 
 def calculate_grid_dimensions(num_maps):
+    """
+    Calculates the number of columns and rows for the grid containing the minimaps based on the number of minimaps to be
+    displayed, based on the "smallest squarish grid" heuristic.
+
+    The smallest squarish grid is the grid in which num_cols * num_rows >= num_maps and num_cols <= num_rows + 1.
+    """
     num_cols = math.ceil(math.sqrt(num_maps))
     num_rows = num_cols
     while (num_rows * num_cols) >= num_maps:
@@ -217,6 +252,12 @@ def calculate_grid_dimensions(num_maps):
 
 
 def generate_minimaps(filename, years_list=None):
+    """
+    Generate mini heatmaps from data.
+    Each minimap corresponds to a resolution, and values indicate whether the resolution was met that day.
+    Minimaps can display both binary and non-binary data.
+    Graph is displayed on-screen as well as temporarily saved to data/exports as temp_minimaps.pdf.
+    """
     df = pd.read_csv(filename)
     if not years_list:
         start_date_str = df["date"][0]
@@ -263,6 +304,7 @@ def generate_minimaps(filename, years_list=None):
                 df_map = df.pivot(index=["Year", "Month"], columns="Day", values=res)
 
             # Use qualitative colormap to display non-binary resolutions and show cbar
+            # TODO: display differently days in which multiple non-binary resolutions were fulfilled
             if "bool" not in res:
                 # Get categories from categorical data
                 categories = pd.unique(df_map.values.ravel())

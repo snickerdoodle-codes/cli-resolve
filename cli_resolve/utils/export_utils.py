@@ -5,14 +5,15 @@ import pandas as pd
 
 def get_filename(date_str):
     """
-    Takes MM/DD/YYYY date string and returns MM-DD-YYYY string to be used in filenames
-    :param date_str:
-    :return:
+    Takes MM/DD/YYYY date string and returns MM-DD-YYYY string to be used in filenames.
     """
     return "-".join(date_str.split("/"))
 
 
 def get_res_fieldnames(res_dict, start_date_str, end_date):
+    """
+    Gets a list of res_id's that contains data that falls within the provided date range.
+    """
     res_fields = []
     for res_id, entry in res_dict.items():
         log_data = entry["data"]
@@ -23,6 +24,9 @@ def get_res_fieldnames(res_dict, start_date_str, end_date):
 
 
 def check_data_against_range(data, start_date_str, end_date):
+    """
+    Checks the data attached to a resolution to see whether any of it falls within the provided date range.
+    """
     curr_date = datetime.strptime(start_date_str, "%m/%d/%Y")
     while curr_date <= end_date:
         curr_date_str = datetime.strftime(curr_date, "%-m/%-d/%Y")
@@ -34,18 +38,33 @@ def check_data_against_range(data, start_date_str, end_date):
 
 
 def write_new_csv_with_header(fieldnames, fname_start, fname_end):
+    """
+    Write header for the CSV to be exported.
+    """
     with open(f"data/exports/res_{fname_start}_{fname_end}.csv", "w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=fieldnames)
         w.writeheader()
 
 
 def write_res_row(fieldnames, curr_data, fname_start, fname_end):
+    """
+    Write a row for the CSV to be exported using curr_data.
+
+    curr_data is a dict in the following format:
+    e.g. { "date": "MM/DD/YYYY", "res_A": 0, "res_B": 1, "res_C": "R" }
+
+    Data values can be 0, 1, or a detail code.
+    """
     with open(f"data/exports/res_{fname_start}_{fname_end}.csv", "a", newline="") as f:
         w = csv.DictWriter(f, fieldnames=fieldnames)
         w.writerow(curr_data)
 
 
 def get_years_list(start_date_str, end_date_str):
+    """
+    Returns a list of years included in a given date range.
+    This list is used to determine display settings for graphs.
+    """
     start_yr = int(start_date_str.split("/")[2])
     end_yr = int(end_date_str.split("/")[2])
 
@@ -56,13 +75,15 @@ def get_years_list(start_date_str, end_date_str):
 
 
 def clean_for_graphing(filepath):
+    """
+    Wrangle CSV data in data/exports and save the cleaned CSV to data/cleaned.
+    """
     print("*** Cleaning data")
     filename = filepath.split("data/exports/")[1]
     df = pd.read_csv(filepath)
     data_start = 1
     data_end = len(df.columns) - 1
 
-    # TODO: make this DRY (compare with convert_legacy_resolutions)
     df[['Month', 'Day', 'Year']] = df['date'].str.split('/', expand=True)
 
     df['Month'] = df['Month'].astype(int)
