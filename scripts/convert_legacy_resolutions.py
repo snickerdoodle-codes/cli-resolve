@@ -1,7 +1,9 @@
+import os
+
 import pandas as pd
 
 # INPUTS
-filename = "nyr22_partial.csv"
+filename = ""
 
 
 def get_index_response(prompt, num_cols):
@@ -72,4 +74,7 @@ while start < data_end + 1:
 
 # Save cleaned df as CSV
 print("*** Saving cleaned csv to data/cleaned/")
-df_cleaned.to_csv(f"../data/cleaned/{filename}", index=False)
+cleaned_path = "../data/cleaned"
+if not os.path.exists(cleaned_path):
+    os.makedirs(cleaned_path)
+df_cleaned.to_csv(f"{cleaned_path}/{filename}", index=False)

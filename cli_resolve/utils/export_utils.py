@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 import csv
 import pandas as pd
+import os
 
 
 def get_filename(date_str):
@@ -41,7 +42,10 @@ def write_new_csv_with_header(fieldnames, fname_start, fname_end):
     """
     Write header for the CSV to be exported.
     """
-    with open(f"data/exports/res_{fname_start}_{fname_end}.csv", "w", newline="") as f:
+    path = "data/exports"
+    if not os.path.exists(path):
+        os.makedirs(path)
+    with open(f"{path}/res_{fname_start}_{fname_end}.csv", "w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=fieldnames)
         w.writeheader()
 
@@ -116,4 +120,7 @@ def clean_for_graphing(filepath):
         start += 1
 
     # Save cleaned df as CSV
-    df.to_csv(f"data/cleaned/{filename}", index=False)
+    path = "data/cleaned"
+    if not os.path.exists(path):
+        os.makedirs(path)
+    df.to_csv(f"{path}/{filename}", index=False)
