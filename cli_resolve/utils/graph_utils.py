@@ -62,7 +62,7 @@ def generate_heatmap(filepath, years_list=None, notable_days=None):
         print("*** Generating heatmap")
         plt.rcParams["figure.figsize"] = (12, 8)
 
-        df_map = df.pivot("Month", "Day", "Resolutions Met")
+        df_map = df.pivot(index="Month", columns="Day", values="Resolutions Met")
         nyr_map = sns.heatmap(
             df_map,
             cmap="inferno",
@@ -299,7 +299,7 @@ def generate_minimaps(filename, years_list=None):
     for res in col_list:
         try:
             if num_years == 1:
-                df_map = df.pivot("Month", "Day", res)
+                df_map = df.pivot(index="Month", columns="Day", values=res)
             else:
                 df_map = df.pivot(index=["Year", "Month"], columns="Day", values=res)
 
