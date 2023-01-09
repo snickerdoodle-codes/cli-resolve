@@ -8,7 +8,7 @@ import shutil
 from cli_resolve.utils.input_utils import *
 
 # INPUTS
-filename = "nyr22_partial.csv"
+filename = ""
 
 
 def get_resolution_choice_set(df):
@@ -196,7 +196,10 @@ while curr_col <= data_end:
 
 print("*** Making backup copy of current resolutions data before save")
 ts = int(datetime.now().timestamp())
-shutil.copy("../data/resolutions.json", f"../data/backups/resolutions_{ts}.json")
+backups_path = "../data/backups"
+if not os.path.exists(backups_path):
+    os.makedirs(backups_path)
+shutil.copy("../data/resolutions.json", f"{backups_path}/resolutions_{ts}.json")
 print("*** Saving backpopulated resolutions data")
 with open("../data/resolutions.json", "w+") as f:
     json.dump(app_data, f, indent=4)
