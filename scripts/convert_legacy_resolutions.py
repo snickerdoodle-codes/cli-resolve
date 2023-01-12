@@ -1,9 +1,9 @@
 import os
-
+import sys
 import pandas as pd
 
 # INPUTS
-filename = ""
+filename = sys.argv[1]
 
 
 def get_index_response(prompt, num_cols):

@@ -5,10 +5,12 @@ import json
 from datetime import datetime
 import shutil
 
+# Set parent directory
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from cli_resolve.utils.input_utils import *
 
 # INPUTS
-filename = ""
+filename = sys.argv[1]
 
 
 def get_resolution_choice_set(df):
