@@ -111,9 +111,13 @@ def export_graph():
                 generate_minimaps(cleaned_filepath, years_list=years_list)
             plt.show()
     if not already_cleaned or regenerate:
-        export_csv(start_date_str, end_date_str)
-        clean_for_graphing(exports_filepath)
-        generate_heatmap(cleaned_filepath, years_list=years_list, notable_days=event_type)
-        if export_minimaps:
-            generate_minimaps(cleaned_filepath, years_list=years_list)
-        plt.show()
+        try:
+            export_csv(start_date_str, end_date_str)
+            clean_for_graphing(exports_filepath)
+            generate_heatmap(cleaned_filepath, years_list=years_list, notable_days=event_type)
+            if export_minimaps:
+                generate_minimaps(cleaned_filepath, years_list=years_list)
+            plt.show()
+        except FileNotFoundError as e:
+            print(f"File not found: {e}")
+            return go_home_message()
