@@ -105,7 +105,7 @@ def handle_input(prompt, response_type=None, **kwargs):
     """
     # Print instructions first if provided
     if kwargs.get("instructions"):
-        print(f"INSTRUCTIONS: {kwargs['instructions']}\n")
+        print(f"\nINSTRUCTIONS: {kwargs['instructions']}\n")
 
     # Without a specified response type, we just want the input string, no validation required
     if not response_type:

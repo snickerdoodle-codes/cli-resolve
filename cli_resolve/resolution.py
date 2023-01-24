@@ -65,7 +65,7 @@ def add_resolution():
                 response_type="boolean",
                 instructions="Binary outcomes tell us whether or not you did something, while categorical outcomes "
                              "tell us about the kind of thing you did.\n"
-                             "For example, for the resolution to exercise, "
+                             "\nFor example, for the resolution to exercise, "
                              "a binary outcome is exercising, or not exercising. "
                              "In contrast, a categorical outcome names the kind of exercise you did (e.g. "
                              "run/bike/swim). "
