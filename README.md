@@ -6,6 +6,12 @@ You're welcome to fork and clone this repo to your heart's content. If you've fo
 
 ![Demo of how to log resolutions](images/demo_logres.gif)
 
+## Getting Started
+1. Install `pipenv` for package management if you don't already have it ([instructions](https://pipenv.pypa.io/en/latest/))
+2. Clone this repo to your local machine and navigate into the `cli-resolve` directory
+3. Install all dependencies: `pipenv install`
+4. Run the program: `pipenv run python cli_resolve`
+
 ## Features
 ### Core Features
 #### Add and Log Resolutions
@@ -43,12 +49,6 @@ You may want to import some or all of your legacy data into the app if you are d
 1. Follow the steps above to Convert Legacy Data for Graphing. This will generate a clean and standardized CSV in the `data/cleaned` folder, which can then be used to backpopulate the application data stored locally in `data/resolutions.json`.
 2. Run `python backpopulate_data.py {filename}.csv` in the `scripts` folder and follow the instructions.
 
-## Getting Started
-1. Install `pipenv` for package management if you don't already have it ([instructions](https://pipenv.pypa.io/en/latest/))
-2. Clone the repo to your local machine and navigate into the `cli-resolve` directory
-3. Install all dependencies: `pipenv install`
-4. Run the program: `pipenv run python cli_resolve`
-
 ## Imaginary FAQs
 ### Is it really that hard to use a spreadsheet?
 No, but sometimes you just gotta let a gal overengineer.
@@ -57,10 +57,10 @@ Also, you can schedule a cron job to run this program or host it in the cloud to
 
 ### Shouldn't this really be a web/desktop/mobile app?
 ### It would be useful to have features X, Y, and Z.
-### Thing A, B, and C could do with a bit of refactoring.
+### Thing A, B, and C could do with a bit of refactoring. / Here be bugs.
 Probably, possibly, and most definitely!
 
-I do have it somewhere on my backlog to turn this into a more accessible GUI app (with additional features), but I'm just one person and my backlog never shrinks. The magic of open-source is that you're welcome to contribute, though!
+I do have it somewhere on my backlog to turn this into a more accessible GUI app (with additional features), but I'm just one person and my backlog never shrinks. You're welcome to contribute, though!
 
 ### How do I get in touch with you?
 
