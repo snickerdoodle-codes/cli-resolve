@@ -4,10 +4,12 @@ Resolve is an open-source CLI app for people who make New Year's resolutions[^1]
 
 You're welcome to fork and clone this repo to your heart's content. If you've found value in my work, please consider [buying me a coffee](https://ko-fi.com/snickerdoodle_studio).
 
+![Demo of how to log resolutions](images/demo_logres.gif)
+
 ## Features
 ### Core Features
 #### Add and Log Resolutions
-![Demo of how to log resolutions](images/demo_logres.gif)
+Keep track of your progress on existing resolutions and add new resolutions.
 
 #### Graph Resolutions
 Generate heatmaps from your data across multiple years and resolutions.
@@ -16,7 +18,7 @@ Generate heatmaps from your data across multiple years and resolutions.
 Heatmaps are temporarily stored as PDFs in `data/exports` and saved over the next time you graph.
 
 * Overlay event labels on your graph, such as to mark days when you're traveling (see [example](data/trips.json)).
-![Resolutions heatmap overlaid with trip information](images/heatmap_with_travel.png)
+![Resolutions heatmap overlaid with trip information](images/heatmap_with_trips.png)
 
 * Generate minimaps of individual resolutions. 
 ![Mini heatmaps of individual resolutions](images/minimaps.png)
