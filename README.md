@@ -13,7 +13,6 @@ Keep track of your progress on existing resolutions and add new resolutions.
 
 #### Graph Resolutions
 Generate heatmaps from your data across multiple years and resolutions.
-![Resolutions heatmap](images/heatmap.png)
 
 Heatmaps are temporarily stored as PDFs in `data/exports` and saved over the next time you graph.
 
