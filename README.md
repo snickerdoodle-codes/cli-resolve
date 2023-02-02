@@ -7,7 +7,7 @@ You're welcome to fork and clone this repo to your heart's content. If you've fo
 ## Features
 ### Core Features
 #### Add and Log Resolutions
-![Demo of how to add and log resolutions](images/resolutions.gif)
+![Demo of how to add and log resolutions](images/demo.gif)
 
 #### Graph Resolutions
 Generate heatmaps from your data across multiple years and resolutions.
