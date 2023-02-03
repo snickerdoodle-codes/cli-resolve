@@ -18,14 +18,12 @@ You're welcome to fork and clone this repo to your heart's content. If you've fo
 Keep track of your progress on existing resolutions and add new resolutions.
 
 #### Graph Resolutions
-Generate heatmaps from your data across multiple years and resolutions.
+Generate heatmaps from your data across multiple years and resolutions.  Heatmaps are temporarily stored as PDFs in `data/exports` and saved over the next time you graph.
 
-Heatmaps are temporarily stored as PDFs in `data/exports` and saved over the next time you graph.
-
-* Overlay event labels on your graph, such as to mark days when you're traveling (see [example](data/trips.json)).
+You can overlay event labels on your graph, for example, to mark days when you were traveling (see [how it's stored](data/trips.json)).
 ![Resolutions heatmap overlaid with trip information](images/heatmap_with_trips.png)
 
-* Generate minimaps of individual resolutions. 
+You can also generate minimaps of individual resolutions.
 ![Mini heatmaps of individual resolutions](images/minimaps.png)
 
 #### Export Data
