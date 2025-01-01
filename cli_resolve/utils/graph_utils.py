@@ -68,7 +68,6 @@ def generate_heatmap(filepath, years_list=None, notable_days=None):
             cmap="inferno",
             square=True,
             vmin=0,
-            vmax=5,
             cbar_kws={'orientation': 'horizontal'},
             xticklabels=True,
             yticklabels=True,
